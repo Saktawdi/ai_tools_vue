@@ -38,8 +38,8 @@
 </template>
 
 <script>
-const Swal = require('sweetalert2')
 import calcTextareaHeight from '@/utils/calcTextareaHeight';
+import { showAlter } from "@/utils/showAlter";
 
 export default {
   data() {
@@ -88,7 +88,7 @@ export default {
     },
     sendMessage() {
       if(this.userInput === ""){
-        this.showAlter("请输入内容！亲",99);
+        showAlter("请输入内容！亲",99);
         return;
       }
       if (this.nowChatHistory.length === 0) {
@@ -149,8 +149,8 @@ export default {
     },
     // 新建聊天
     createNewChat() {
-      if(this.chatHistoryItems.length === 0){
-        this.showAlter("直接按回车键发信息即可了哦~");
+      if(this.nowChatHistory.length === 0){
+        showAlter("直接按回车键发信息即可了哦~",99);
         return;
       }
       let itemTemp;
@@ -166,39 +166,23 @@ export default {
     //保存历史记录
     saveChatHistory() {
       localStorage.setItem('chatHistory', JSON.stringify(this.chatHistory));
-      this.showAlter("保存成功",1);
+      showAlter("保存成功",1);
     },
     // TODO: 实现调用 AI 的方法，获取 AI 的回复，并将回复添加到 chatHistory 中
-    
-    //弹窗
-    showAlter(msg, type) {
-      if (type === 0) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: msg,
-        })
-      } else if (type === 1) {
-        Swal.fire(
-          'success!',
-          msg,
-          'success'
-        )
-      } else if (type === 3) {
-        Swal.fire(
-          '???',
-          msg,
-          'question'
-        )
-      }else if(type === 99){
-        Swal.fire(msg)
-      }
-    },
   },
 };
 </script>
 
 <style>
+/* 主题色 */
+:root {
+  --primary-color: #3498db; /* 蓝色 */
+  --secondary-color: #e74c3c; /* 红色 */
+  --background-color: #f5f5f5; /* 浅灰背景色 */
+  --card-background: #ffffff; /* 卡片背景色 */
+  --text-color: #333333; /* 文本颜色 */
+}
+
 span {
   width: 100%;
   text-align: center;
@@ -211,7 +195,7 @@ span {
 }
 
 .button {
-  margin: 1px;
+  margin: 0.5px;
   border-radius: 0px;
   width: 100%;
   max-height: 32px;
@@ -234,15 +218,12 @@ span {
   /* 调整历史记录区域宽度 */
   background-image: linear-gradient(to right, #c8fccd 0%, #dff8ff 100%);
   border-radius: 0px 0 0 0px;
-  /* 圆角左边框 */
-  border: 0.5px solid #28df99;
-
+  /* border: 0.5px solid #28df99; */
+  box-shadow: 0 3px 5px rgba(32,160,255,.5);
 }
 
 .historyItem {
   display: flex;
-  margin-top: 3px;
-  margin-bottom: 3px;
   width: 99%;
   height: 48px;
   max-height: 48px;
@@ -251,7 +232,7 @@ span {
   justify-content: center;
   align-items: center;
   /* 垂直居中 */
-  border: 0.2px solid #28df99;
+  border-bottom: 0.2px solid #28df99;
   white-space: nowrap; /* 不换行 */
   overflow: hidden; /* 超出部分隐藏 */
   text-overflow: ellipsis; /* 超出部分显示省略号 */
@@ -272,11 +253,12 @@ span {
 }
 
 .chat-container {
+  background-color: var(--card-background);
   width: 100%;
   min-height: 100%;
   max-height: 100%;
   background-color: #f5f5f5;
-  border-radius: 10px;
+  /* border-radius: 10px; */
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   overflow-y: scroll;
