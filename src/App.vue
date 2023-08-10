@@ -5,14 +5,14 @@
     <router-link :to="{ path: '/aichat' }" :class="{ active: isActive('/aichat') }">言随意转</router-link>
     <router-link :to="{ path: '/mdppt' }" :class="{ active: isActive('/mdppt') }">智构幻图</router-link>
     <div class="profile-container" @mouseover="showMenu" @mouseleave="hideMenu">
-      <img src="https://cdn.jsdelivr.net/gh/Saktawdi/my-images@main/img/logo.png" alt="Avatar" class="homeAvatar" />
+      <img :src='getUserData.avatar' alt="Avatar" class="homeAvatar" />
       <div v-if="isMenuVisible" class="menu">
-        <span class="username">Sakta_wdi</span>
+        <span class="username">{{ getUserData.userName }}</span>
         <div class="menu-list">
           <ul>
-            <li>个人信息</li>
-            <li>设置</li>
-            <li>退出</li>
+            <li v-if="getUserData.userName === '游客'" @click="ToLogin">登录</li>
+            <li v-if="getUserData.userName != '游客'" @click="ToUserCenter">个人</li>
+            <li v-if="getUserData.userName != '游客'" @click="userOut">退出</li>
           </ul>
         </div>
       </div>
@@ -22,11 +22,28 @@
 </template>
 
 <script>
+import { requestConfig } from "@/request";
+import defaultHeadImg from "@/assets/default5.png";
+
 export default {
   data() {
     return {
+      baseUrl: requestConfig.baseURL1,
       isMenuVisible: false,
+      userImgUrl: '',
     };
+  },
+  computed: {
+    getToken() {
+      return this.$store.state.token;
+    },
+    getUserData() {
+      var userInfo = this.$store.getters.getUserInfo;
+      if (userInfo && userInfo.userName != "游客") {
+        userInfo.avatar = this.baseUrl + userInfo.avatar;
+      }
+      return userInfo;
+    }
   },
   methods: {
     isActive(route) {
@@ -38,6 +55,25 @@ export default {
     hideMenu() {
       this.isMenuVisible = false;
     },
+    ToLogin() {
+      this.$router.push("/login");
+    },
+    ToUserCenter() {
+      this.$router.push("/userInfo");
+    },
+    async userOut() {
+      await this.$store.dispatch('clearToken');
+      localStorage.removeItem('token');
+      await this.$store.dispatch("setUserInfo", {
+        avatar: defaultHeadImg,
+        userName: "游客",
+        dept: {
+          deptName: "游客"
+        }
+      });
+      //刷新页面
+      location.reload();
+    }
   },
 };
 </script>

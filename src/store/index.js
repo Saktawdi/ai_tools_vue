@@ -1,9 +1,15 @@
 import { createStore } from 'vuex'
+import defaultHeadImg from "@/assets/default5.png";
 
 export default createStore({
   state: {
     token: localStorage.getItem('token') || "",
-    userInfo: JSON.parse(localStorage.getItem('userInfo')) || null,
+    userInfo: JSON.parse(localStorage.getItem('userInfo')) || {
+      avatar:defaultHeadImg,
+      userName:"游客",
+      dept:{
+        deptName:"游客"
+      }},
   },
   getters: {
     getToken(state) {

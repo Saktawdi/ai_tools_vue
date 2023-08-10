@@ -55,6 +55,12 @@ export default {
       textareaHeight:'24px',
     };
   },
+  mounted(){
+    var userInfo  = this.$store.getters.getUserInfo;
+    if(userInfo.userName === "游客"){
+      this.$router.push('/roleDisable')
+    }
+  },
   created() {
     // 从本地存储加载聊天历史记录
     const savedChatHistory = localStorage.getItem('chatHistory');

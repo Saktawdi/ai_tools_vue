@@ -1,13 +1,12 @@
 import axios from "axios";
 
 export const requestConfig={
-    baseURL:"http://183.56.226.207:7868/",
-    timeout:5000
+    baseURL1:"http://183.56.226.207:7868",
+    baseURL2:"https://ai.fakeopen.com",
+    timeout:60000
 }
 
-const service =axios.create({
-    baseURL:requestConfig.baseURL,
-    //配置请求超时时间
+const service = axios.create({
     timeout:requestConfig.timeout
 });
 
