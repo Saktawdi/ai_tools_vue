@@ -7,7 +7,7 @@
     <div class="profile-container" @mouseover="showMenu" @mouseleave="hideMenu">
       <img :src='getUserData.avatar' alt="Avatar" class="homeAvatar" />
       <div v-if="isMenuVisible" class="menu">
-        <span class="username">{{ getUserData.userName }}</span>
+        <span class="navusername">{{ getUserData.userName }}</span>
         <div class="menu-list">
           <ul>
             <li v-if="getUserData.userName === '游客'" @click="ToLogin">登录</li>
@@ -30,7 +30,7 @@ export default {
     return {
       baseUrl: requestConfig.baseURL1,
       isMenuVisible: false,
-      userImgUrl: '',
+      userImgUrl: ''
     };
   },
   computed: {
@@ -39,7 +39,7 @@ export default {
     },
     getUserData() {
       var userInfo = this.$store.getters.getUserInfo;
-      if (userInfo && userInfo.userName != "游客") {
+      if (userInfo && userInfo.userName != "游客" && !userInfo.avatar.startsWith(this.baseUrl)) {
         userInfo.avatar = this.baseUrl + userInfo.avatar;
       }
       return userInfo;
@@ -96,12 +96,35 @@ nav a.active {
   color: white;
 }
 
-/* 导航栏样式 */
+
 nav {
+  position: relative;
   height: 28px;
-  background-color: rgb(50, 93, 187);
+  background-image: linear-gradient(to right, #30cfd0 0%, #330867 100%);
   padding: 10px 0;
   text-align: center;
+  z-index: 999;
+}
+
+/* 小圆点样式 */
+nav::before,
+nav::after{
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ccc;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+/* 鼠标悬停时放大小圆点 */
+nav:hover::before{
+  transform: scale(1.5);
+}
+nav:hover::after {
+  transform: scale(1.5);
 }
 
 /* 导航链接样式 */
@@ -120,17 +143,6 @@ nav a:hover {
   color: white;
 }
 
-/* 分隔符样式 */
-nav::before,
-nav::after {
-  content: "";
-  display: inline-block;
-  vertical-align: middle;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: #ccc;
-}
 
 /* 移除第一个分隔符前的间隔 */
 nav::before {
@@ -162,8 +174,9 @@ nav::after {
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.username {
+.navusername {
   font-weight: bold;
+  font-size: 18px;
 }
 
 .menu-list {

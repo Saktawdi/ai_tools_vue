@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <div class="background-blur"></div>
+    <particleBackground></particleBackground>
     <div class="login-box">
       <h2 class="login-title">欢迎登录</h2>
       <form class="login-form" @submit="login">
@@ -21,8 +21,12 @@
 <script>
 import { loginApi } from "@/api/getUser";
 import { showAlter } from "@/utils/showAlter";
+import particleBackground from "@/components/particleBackground.vue";
 
 export default {
+  components:{
+        particleBackground
+  },
   data() {
     return {
       username: '',
@@ -69,17 +73,6 @@ export default {
   align-items: center;
   height: calc(100vh - 48px);
   overflow: hidden;
-}
-
-.background-blur {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url("../../assets/background.png");
-  filter: blur(10px); /* 调整高斯模糊程度 */
-  z-index: -1;
 }
 
 .login-box {

@@ -41,11 +41,12 @@ export function showAlter(msg, type) {
     )
   } else if (type === 4) {
     return Swal.fire({
-      title: "请等待...",
-      text: msg,
-      icon: "info",
-      buttons: false,
+      toast: true,
+      position: 'top-end',
       showConfirmButton: false,
+      timer: 3000,
+      type: 'success',
+      title: msg,
       showCloseButton: false,
       closeOnClickOutside: false,
       showCancelButton: false,

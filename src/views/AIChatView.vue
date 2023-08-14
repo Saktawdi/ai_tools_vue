@@ -12,13 +12,14 @@
         </button>
       </div>
       <div v-for="historyItem in chatHistoryItems" :key="historyItem.id"
-        :class="{ 'historyItem': true, 'historyItemActive': historyItem.isActive }" @click="activateHistoryItem(historyItem.id)">
+        :class="{ 'historyItem': true, 'historyItemActive': historyItem.isActive }"
+        @click="activateHistoryItem(historyItem.id)">
         <span>{{ historyItem.name }}</span>
         <img class="delete-icon" @click="deleteHistoryItem(historyItem.id)" src="../assets/delete.svg" alt="Delete Icon"
           style="margin-right:15px;width:28px;" />
       </div>
     </div>
-    <div class="chat-container">
+    <div class="chat-container" ref="chatContainer">
       <div class="messagesBox">
         <div v-for="(message, index) in nowChatHistory" :key="index" class="messages">
           <div class="avatar" :class="{ 'user-avatar': message.fromUser, 'ai-avatar': !message.fromUser }">
@@ -33,7 +34,12 @@
       </div>
     </div>
     <!-- <input v-model="userInput" @keydown.enter="sendMessage" class="user-input" placeholder="畅你所言" /> -->
-    <textarea ref="textarea" v-model="userInput" @keydown.enter="handleEnterKey" class="user-textarea" placeholder="畅你所言" :style="{'height': textareaHeight}"></textarea>
+    <textarea ref="textarea" v-model="userInput" @keydown.enter="handleEnterKey" class="user-textarea" placeholder="畅你所言"
+      :style="{ 'height': textareaHeight }" :disabled="!isTextareaEnabled"></textarea>
+    <div v-if="!isTextareaEnabled" class="loading-overlay">
+      <!-- 加载动画效果 -->
+      <div class="loading-spinner"></div>
+    </div>
   </div>
 </template>
 
@@ -52,14 +58,30 @@ export default {
         { id: 3, name: 'Chat 3', isActive: false },
       ],//历史聊天条目
       userInput: '',   // 用户输入
-      textareaHeight:'24px',
+      isTextareaEnabled: true,
+      textareaHeight: '24px',
+      messages: [
+        {
+          "role": "system",
+          "content": "你是一个可靠的助手，将尽力帮助用户完成目标。你的回答里将不会出现任何有关AI、openAI以及chatGPT的字眼，并且不会透露任何关于你的模型的事情。"
+        },
+      ],
     };
   },
-  mounted(){
-    var userInfo  = this.$store.getters.getUserInfo;
-    if(userInfo.userName === "游客"){
+  mounted() {
+    var userInfo = this.$store.getters.getUserInfo;
+    if (userInfo.userName === "游客") {
       this.$router.push('/roleDisable')
     }
+  },
+  computed: {
+    getUserData() {
+      var userInfo = this.$store.getters.getUserInfo;
+      return userInfo;
+    },
+    getToken() {
+      return this.$store.state.token;
+    },
   },
   created() {
     // 从本地存储加载聊天历史记录
@@ -92,9 +114,9 @@ export default {
         this.sendMessage();
       }
     },
-    sendMessage() {
-      if(this.userInput === ""){
-        showAlter("请输入内容！亲",99);
+    async sendMessage() {
+      if (this.userInput === "") {
+        showAlter("请输入内容！亲", 99);
         return;
       }
       if (this.nowChatHistory.length === 0) {
@@ -104,21 +126,95 @@ export default {
       // 将用户输入添加到当前历史记录数组
       const userMessage = {
         content: this.userInput,
-        avatar: "https://cdn.jsdelivr.net/gh/Saktawdi/my-images@main/img/logo.png",
+        avatar: this.getUserData.avatar,
         fromUser: true,
       };
       this.nowChatHistory.push(userMessage);
+      this.messages.push({
+        "role": "user",
+        "content": this.userInput
+      })
       // TODO: 调用 AI 进行回复，将 AI 回复添加到 chatHistory 中
       this.userInput = ''; // 清空用户输入
-      // 模拟 AI 的回复
-      setTimeout(() => {
-        const aiMessage = {
-          content: '这是 AI 发送的信息',
-          avatar: "https://cdn.jsdelivr.net/gh/Saktawdi/my-images@main/img/%E5%9B%BE%E7%89%87%20(2).jpg",
-          fromUser: false,
-        };
-        this.nowChatHistory.push(aiMessage);
-      }, 1000); // 1秒后添加 AI 的回复
+      await this.AiRespon(this.userInput);
+    },
+    async AiRespon() {
+      this.isTextareaEnabled = false;
+      const url = 'http://183.56.226.207:7868/v1/chat/pri/send/stream';
+      const headers = {
+        'token': this.getToken,
+        'Content-Type': 'application/json'
+      };
+      const data = {
+        "model": "gpt-3.5-turbo-16k",
+        "messages": this.messages,
+        "temperature": 0.5,
+        "stream": true
+      };
+      await fetch(url, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(data),
+      })
+        .then(response => {
+          const aiMessage = {
+            content: '',
+            avatar: "https://cdn.jsdelivr.net/gh/Saktawdi/my-images@main/img/AIAvatar.jpg",
+            fromUser: false,
+          };
+          const reader = response.body.getReader(); // Get the reader from the response body
+          let result = ''; // Initialize an empty string to store the result
+          const self = this;
+          function processText({ done, value }) {
+            // Read the data from the stream
+            if (done) {
+              self.messages.push({
+                "role": "assistant",
+                "content": aiMessage.content
+              },);
+              const container = self.$refs.chatContainer;
+              container.scrollTop = container.scrollHeight;
+              self.isTextareaEnabled = true;
+              return result;
+            }
+            result += new TextDecoder().decode(value); // Decode the value as a UTF-8 string
+            const lines = result.split('\n');
+            result = lines.pop(); // Save the incomplete line for the next iteration
+            for (const line of lines) {
+              // console.log("line", line)
+              if (line.trim().startsWith('data: ') && !line.includes("[DONE]", 0)) {
+                try {
+                  const jsonData = JSON.parse(line.replace("data:", "").trim()); // Removing "data: " prefix
+                  if (jsonData.choices[0].delta && jsonData.choices[0].delta.content) {
+                    const content = jsonData.choices[0].delta.content;
+                    // trouble
+                    aiMessage.content += content;
+                    let n = self.nowChatHistory.length;
+                    if (self.nowChatHistory[n - 1].fromUser) {
+                      self.nowChatHistory.push(aiMessage);
+                    } else {
+                      self.nowChatHistory.pop();
+                      self.nowChatHistory.push(aiMessage);
+                      // self.nowChatHistory[n - 1].content = aiMessage.content;
+                    }
+                    // console.log('Received content:', content);
+                  }
+                } catch (error) {
+                  self.isTextareaEnabled = true;
+                  showAlter("转换失败！", 0)
+                  console.error('Error parsing JSON:', error);
+                }
+              }
+            }
+            return reader.read().then(processText); // Read the next chunk
+          }
+          return reader.read().then(processText);
+        })
+        .catch(error => {
+          this.isTextareaEnabled = true;
+          showAlter("未知错误！", 0)
+          console.error('Error:', error);
+        });
     },
     // 删除历史记录
     deleteHistoryItem(id) {
@@ -129,6 +225,12 @@ export default {
 
         // 清空 nowChatHistory
         this.nowChatHistory = [];
+        this.messages = [
+        {
+          "role": "system",
+          "content": "你是一个可靠的助手，将尽力帮助用户完成目标。你的回答里将不会出现任何有关AI、openAI以及chatGPT的字眼，并且不会透露任何关于你的模型的事情。"
+        },
+      ];
 
         // 删除 chatHistory 中的对应项
         const chatHistoryIndex = this.chatHistory.findIndex(item => item.id === id);
@@ -148,6 +250,18 @@ export default {
         const activeHistory = this.chatHistory.find(item => item.item === this.chatHistoryItems[index].name);
         if (activeHistory) {
           this.nowChatHistory = activeHistory.data;
+          var roleType = "";
+          this.nowChatHistory.forEach((item) => {
+            if (item.fromUser) {
+              roleType = "user"
+            } else {
+              roleType = "assistant"
+            }
+            this.messages.push({
+              "role": roleType,
+              "content": item.content
+            },);
+          })
         } else {
           this.nowChatHistory = [];
         }
@@ -155,8 +269,8 @@ export default {
     },
     // 新建聊天
     createNewChat() {
-      if(this.nowChatHistory.length === 0){
-        showAlter("直接按回车键发信息即可了哦~",99);
+      if (this.nowChatHistory.length === 0) {
+        showAlter("直接按回车键发信息即可了哦~", 99);
         return;
       }
       let itemTemp;
@@ -166,13 +280,24 @@ export default {
           item.isActive = false;
         }
       });
-      this.chatHistory.push({id:itemTemp.id,item: itemTemp.name, data: this.nowChatHistory });
+      this.chatHistory.push({ id: itemTemp.id, item: itemTemp.name, data: this.nowChatHistory });
       this.nowChatHistory = [];
+      this.messages = [
+        {
+          "role": "system",
+          "content": "你是一个可靠的助手，将尽力帮助用户完成目标。你的回答里将不会出现任何有关AI、openAI以及chatGPT的字眼，并且不会透露任何关于你的模型的事情。"
+        },
+      ];
     },
     //保存历史记录
     saveChatHistory() {
+      if(this.chatHistory.length != this.chatHistoryItems.length){
+        var n = this.chatHistoryItems.length;
+        if(n - 1 < 0) n = 0;
+        this.chatHistory.push({id:this.chatHistoryItems[n - 1].id,item:this.chatHistoryItems[n - 1].name,data:this.nowChatHistory});
+      }
       localStorage.setItem('chatHistory', JSON.stringify(this.chatHistory));
-      showAlter("保存成功",1);
+      showAlter("保存成功", 1);
     },
     // TODO: 实现调用 AI 的方法，获取 AI 的回复，并将回复添加到 chatHistory 中
   },
@@ -182,11 +307,16 @@ export default {
 <style>
 /* 主题色 */
 :root {
-  --primary-color: #3498db; /* 蓝色 */
-  --secondary-color: #e74c3c; /* 红色 */
-  --background-color: #f5f5f5; /* 浅灰背景色 */
-  --card-background: #ffffff; /* 卡片背景色 */
-  --text-color: #333333; /* 文本颜色 */
+  --primary-color: #3498db;
+  /* 蓝色 */
+  --secondary-color: #e74c3c;
+  /* 红色 */
+  --background-color: #f5f5f5;
+  /* 浅灰背景色 */
+  --card-background: #ffffff;
+  /* 卡片背景色 */
+  --text-color: #333333;
+  /* 文本颜色 */
 }
 
 span {
@@ -207,16 +337,17 @@ span {
   max-height: 32px;
 }
 
-.optionBox{
+.optionBox {
   display: flex;
 }
 
 .newChat {
   max-width: 70%;
 }
+
 /* 保存按钮 */
-.save{
-  max-width:30%;
+.save {
+  max-width: 30%;
 }
 
 .historyList {
@@ -225,7 +356,7 @@ span {
   background-image: linear-gradient(to right, #c8fccd 0%, #dff8ff 100%);
   border-radius: 0px 0 0 0px;
   /* border: 0.5px solid #28df99; */
-  box-shadow: 0 3px 5px rgba(32,160,255,.5);
+  box-shadow: 0 3px 5px rgba(32, 160, 255, .5);
 }
 
 .historyItem {
@@ -239,9 +370,12 @@ span {
   align-items: center;
   /* 垂直居中 */
   border-bottom: 0.2px solid #28df99;
-  white-space: nowrap; /* 不换行 */
-  overflow: hidden; /* 超出部分隐藏 */
-  text-overflow: ellipsis; /* 超出部分显示省略号 */
+  white-space: nowrap;
+  /* 不换行 */
+  overflow: hidden;
+  /* 超出部分隐藏 */
+  text-overflow: ellipsis;
+  /* 超出部分显示省略号 */
 }
 
 .historyItem:hover {
@@ -316,6 +450,13 @@ span {
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   resize: none;
   font-size: 24px;
+
+  opacity: 0.5;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.user-textarea:hover{
+  opacity: 1;
 }
 
 .avatar {
@@ -334,4 +475,39 @@ span {
   float: left;
   /* 将AI头像定位在右侧 */
 }
+
+.loading-overlay {
+  position: absolute;
+  /* 添加这行 */
+  bottom: 48px;
+  /* 调整底部间距 */
+  left: 75%;
+  /* 居中 */
+  transform: translateX(-50%);
+  /* 居中 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #007bff; /* 加载动画的颜色 */
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite; /* 使用动画效果使加载动画旋转 */
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
 </style>

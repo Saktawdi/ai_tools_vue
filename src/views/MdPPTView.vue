@@ -13,9 +13,9 @@
       <div id="marp-wrapper">
         <div class="pptBox" v-html="currentPageHtml"></div>
         <div class="pptOption" v-if="true">
-          <button @click="prevPage" :disabled="currentPage === 1">上一页</button>
+          <button @click="prevPage" :disabled="currentPage === 1" class="left"></button>
           <span>{{ currentPage }} / {{ totalNumPages }}</span>
-          <button @click="nextPage" :disabled="currentPage === totalNumPages">下一页</button>
+          <button @click="nextPage" :disabled="currentPage === totalNumPages" class="right"></button>
         </div>
       </div>
       <div class="themeBox">
@@ -104,6 +104,13 @@ $$
       const svgTags = (this.renderedHtml.match(/<section[^>]*>/g) || []).length;
       return svgTags;
     },
+    getUserData() {
+      var userInfo = this.$store.getters.getUserInfo;
+      return userInfo;
+    },
+    getToken() {
+      return this.$store.state.token;
+    },
   },
   methods: {
     //渲染ppt
@@ -144,9 +151,9 @@ $$
       const swalInstance = showAlter("等待AI作答......", 5);
       this.markdown = "";
       //Todo:stream响应答复
-      const url = 'https://ai.fakeopen.com/v1/chat/completions';
+      const url = 'http://183.56.226.207:7868/v1/chat/pri/send/stream';
       const headers = {
-        'Authorization': 'Bearer pk-VQdwTzt2G01U0fU_i-yXptwzcvr3rg4Xgv96L3VSNpM',
+        'token': this.getToken,
         'Content-Type': 'application/json'
       };
       const data = {
@@ -193,7 +200,7 @@ $$
             const lines = result.split('\n');
             result = lines.pop(); // Save the incomplete line for the next iteration
             for (const line of lines) {
-              console.log("line",line)
+              // console.log("line",line)
               if (line.trim().startsWith('data: ') && !line.includes("[DONE]",0)) {
                 try {
                   const jsonData = JSON.parse(line.replace("data:","").trim()); // Removing "data: " prefix
@@ -201,7 +208,7 @@ $$
                     const content = jsonData.choices[0].delta.content;
                     // trouble
                     self.markdown += content;
-                    console.log('Received content:', content);
+                    // console.log('Received content:', content);
                     
                   }
                 } catch (error) {
@@ -278,7 +285,7 @@ body {
 .content {
   display: flex;
   justify-content: space-between;
-  height: calc(100vh - 78px);
+  height: calc(100vh - 90px);
   padding: 20px;
   background-color: #f0f0f0;
 }
@@ -316,10 +323,32 @@ body {
   position: absolute;
   /* 调整底部间距 */
   left: 70%;
-  bottom: 30.5%;
+  bottom: 31%;
   z-index: 99;
   /* 居中 */
   transform: translateX(-50%);
+}
+
+.pptOption button {
+  background-color: #007bff;
+  opacity: 0.6;
+  padding: 32px 32px;
+  clip-path: polygon(
+        0 0,
+        30px 50%,
+        0 100%,
+        calc(100% - 30px) 100%,
+        100% 50%,
+        calc(100% - 30px) 0
+  );
+}
+
+.left {
+  transform: scaleX(-1) scale(0.5);
+}
+
+.right{
+  transform:scale(0.5);
 }
 
 .themeBox {

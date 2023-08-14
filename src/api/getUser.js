@@ -32,3 +32,15 @@ export const getUserInfoApi = (token) => {
         }
     });
 };
+
+// 上传头像文件接口
+export const uploadAvatar = (file) => {
+    // 构造上传请求
+    const formData = new FormData();
+    formData.append("file", file);
+    return  axios.post( `${requestConfig.baseURL1}/common/pub/uploadAvatar`, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data" 
+        }
+    });
+}
