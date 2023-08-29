@@ -8,7 +8,7 @@ const Swal = require('sweetalert2')
 99.normal
 -1.close
 */
-export function showAlter(msg, type) {
+export function showAlter(msg, type = 99) {
   if (type === -1) {
     Swal.close();
   }

@@ -1,8 +1,8 @@
 import axios from "axios";
 
 export const requestConfig={
-    baseURL1:"http://183.56.226.207:7868",
-    baseURL2:"https://ai.fakeopen.com",
+    baseURL1:"http://temp.sakta.top:82",
+    baseURL2:"",
     timeout:60000
 }
 

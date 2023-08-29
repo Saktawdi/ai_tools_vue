@@ -34,7 +34,8 @@ const { Marp } = require('@marp-team/marp-core');
 import { showAlter } from "@/utils/showAlter";
 import generatePPTXFromHTML from "@/utils/html2maker";
 import getCurrentPageHtml from "@/utils/getCurrentPageHtml";
-import { baseStyleMD, themeDatas } from "@/api/baseStyleMD"
+import { baseStyleMD, themeDatas ,themeCSS} from "@/api/baseStyleMD"
+import { requestConfig } from '@/request';
 
 export default {
   components: {
@@ -42,8 +43,10 @@ export default {
   },
   data() {
     return {
-      markdown: `# 欢迎使用 **智构幻图**
+      markdown: `<!-- header: 这是头-->
+# 欢迎使用 **智构幻图**
 ## 这是一个实验性的功能
+
 ---
 <!-- _color: orange-->
 # 未来
@@ -67,10 +70,13 @@ int sum = std::accumulate(nums.begin(), nums.end(), 0);
 
 <!--backgroundImage: linear-gradient(to right, #fddb92 0%, #d1fdff 100%);-->
 # 图片
-![pic](https://img.zcool.cn/community/0104c15cd45b49a80121416816f1ec.jpg@1280w_1l_2o_100sh.jpg)
-你可以通过任何md格式来编辑你的ppt！
+你可以通过任何md格式来编辑你的ppt！ ![pic](https://img.zcool.cn/community/0104c15cd45b49a80121416816f1ec.jpg@1280w_1l_2o_100sh.jpg)
 并且支持md注释
-未来将开放 **html代码** [你将能实现更多创意！]
+ **html代码** 以及表情已经开放🥰[👌你将能实现更多创意！]
+<div class='columns'>
+  <button>这是1</button>
+  <button>这是2</button>
+</div>
 
 ---
 # math
@@ -119,13 +125,19 @@ $$
         showAlter("待渲染的md代码为空", 0)
         return;
       }
-      let realyMarkdown = baseStyleMD[this.themeID];
-      realyMarkdown += this.markdown;
       const marp = new Marp({
         printable: true,
         minifyCSS: true,
+        emoji:true,
+        html:true,
 
       })
+      let realyMarkdown = baseStyleMD[this.themeID];
+      if(realyMarkdown.includes('sakta')){
+        const university = marp.themeSet.add(themeCSS[this.themeID - 3].data);
+        marp.themeSet.addTheme(university);
+      }
+      realyMarkdown += this.markdown;
       const { html, css } = marp.render(realyMarkdown);
       const htmlResponse = `
       <!DOCTYPE html>
@@ -151,7 +163,7 @@ $$
       const swalInstance = showAlter("等待AI作答......", 5);
       this.markdown = "";
       //Todo:stream响应答复
-      const url = 'http://183.56.226.207:7868/v1/chat/pri/send/stream';
+      const url = requestConfig.baseURL1 + '/v1/chat/pri/send/stream';
       const headers = {
         'token': this.getToken,
         'Content-Type': 'application/json'
@@ -177,6 +189,14 @@ $$
         body: JSON.stringify(data),
       })
         .then(response => {
+          if (response.status === 401) {
+            showAlter("登录已过期，请重新登录！")
+            this.$store.dispatch('clearToken')
+            this.$router.push('/login')
+          }
+          if(response.status === 500){
+            showAlter("AI服务器异常，请稍后再试")
+          }
           const reader = response.body.getReader(); // Get the reader from the response body
           let result = ''; // Initialize an empty string to store the result
 

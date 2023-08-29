@@ -8,12 +8,12 @@
         <p class="tagline">与AI聊天、生成PPT，轻松实现您的需求</p>
       </div>
       <div class="features">
-        <div class="feature">
+        <div class="feature" @click="TOAichat">
           <img src="../assets/AIAvatar.jpg" alt="Chat Icon" class="feature-icon">
           <h2 class="feature-title">言随意转</h2>
           <p class="feature-description">与智能AI进行有趣的对话，轻松解决疑问</p>
         </div>
-        <div class="feature">
+        <div class="feature" @click="TOMdppt">
           <img src="../assets/pptAvatar.jpg" alt="PPT Icon" class="feature-icon">
           <h2 class="feature-title">智构幻图</h2>
           <p class="feature-description">让AI帮您生成炫酷的PPT，节省时间与精力</p>
@@ -43,6 +43,9 @@
         <h2 class="footer-title">免责声明:</h2>
         <span class="footer-description">本站仅供学习参考使用，请勿用于违法活动！</span>
       </div>
+      <div>
+        ©2023 sakta_wdi版权所有。粤ICP备2023096562号
+      </div>
     </div>
   </div>
 </template>
@@ -57,6 +60,12 @@ export default {
   mounted() {
   },
   methods: {
+    TOAichat(){
+      this.$router.push('/aichat');
+    },
+    TOMdppt(){
+      this.$router.push('/mdppt');
+    }
   }
 }
 </script>

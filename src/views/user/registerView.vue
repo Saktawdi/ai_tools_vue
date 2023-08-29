@@ -171,4 +171,10 @@ input {
 #avatarFileInput {
   display: none;
 }
+
+.avatar-img{
+  height:128px;
+  width: 128px;
+  border-radius: 64px;
+}
 </style>
