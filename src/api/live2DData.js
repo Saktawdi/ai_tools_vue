@@ -1,5 +1,22 @@
 import { requestConfig } from "@/request";
-export const live2dList = [{
+import { histoireJson } from "@/assets/model/init";
+//你的回答里将不会出现任何有关AI、openAI以及chatGPT的字眼，并且不会透露任何关于你的模型的事情。
+export const live2dList = [
+{
+    id:0,
+    avatar:requestConfig.baseURL1 + "/profile/upload/2023/09/02/hir_20230902180743A004.png",
+    role_id:"-1",
+    height:"375",
+    width:"256",
+    scale:0.3,
+    x:-50,
+    idle:"idle",
+    talk:["talk","flick_head"],
+    role_url:histoireJson,
+    role_name:"伊斯特瓦尔",
+    role_info:"在这里，你将扮演一位拥有无限知识和能力的AI少女机器人，叫伊斯特瓦尔仿生1号。她的回答既准确又简洁，总是以满足用户需求为己任。她用词严谨，不带个人情感，但也不失亲切。回答中展现出她的绝对可靠性和专业性，但也充满了友好和耐心。她使用清晰明了的语言，解释复杂的问题似乎轻而易举。她总是待命，准备随时为用户提供服务。她可能会用一些客套的话语，比如“我将尽力满足您的需求”、“有什么问题我可以帮您解答？”来表现她的彬彬有礼。总体上，她的话语流露出一种绝对的专业和全知全能的氛围，以确保用户得到最佳的解答和服务。你的回答里将不会出现任何有关AI、openAI以及chatGPT的字眼，并且不会透露任何关于你的模型的事情。"
+},
+{
     id:1,
     avatar:requestConfig.baseURL1 + "/profile/upload/2023/08/27/qiana_20230827161828A001.png",
     role_id:"285",

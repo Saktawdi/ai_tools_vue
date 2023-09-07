@@ -46,7 +46,7 @@
               {{ message.content }}
             </div>
           </div>
-          <audio ref="audioPlayers" controls :src="streamingAudioUrl[index]" v-if="!message.fromUser" @canplay="readyPlay"></audio>
+          <audio ref="audioPlayers" controls :src="streamingAudioUrl[index]" v-if="!message.fromUser && streamingAudioUrl[index]!==''" @canplay="readyPlay"></audio>
         </div>
       </div>
     </div>
@@ -74,7 +74,7 @@ export default {
     return {
       live2dList: live2dList,
       Live2DIndex: 0,
-      streamingAudioUrl: [""], // 存储流式音频 URL
+      streamingAudioUrl: [], // 存储流式音频 URL
       audioReady:false,
       chatHistory: [], // 存放聊天历史
       nowChatHistory: [],// 现在条目的历史记录
@@ -133,7 +133,6 @@ export default {
   methods: {
     autoExpandTextarea() {
       this.textareaHeight = calcTextareaHeight(this.$refs.textarea, 1, 7).height;
-
     },
     handleEnterKey(event) {
       // 检查是否同时按下了 Shift 键
@@ -170,6 +169,7 @@ export default {
       container.scrollTop = container.scrollHeight;
       // TODO: 调用 AI 进行回复，将 AI 回复添加到 chatHistory 中
       this.userInput = ''; // 清空用户输入
+      this.streamingAudioUrl.push("");
       await this.AiRespon(this.userInput);
     },
     // 处理AI回复
@@ -271,10 +271,14 @@ export default {
     },
     // 处理音频数据
     async playAudio(content) {
+      if(this.live2dList[this.Live2DIndex].role_id === "-1"){
+        this.streamingAudioUrl.push("");
+        return;
+      }
       try {
         const streamingAudioUrl = `https://artrajz-vits-simple-api.hf.space/voice/vits?text=${content}&id=${this.live2dList[this.Live2DIndex].role_id}&streaming=true`;
         this.streamingAudioUrl.push(streamingAudioUrl);
-        const index = this.streamingAudioUrl.length - 2;
+        const index = this.streamingAudioUrl.length - 1;
         this.$refs.audioPlayers[index].src = streamingAudioUrl;
         // 触发播放
         this.playAudioAtIndex(index);

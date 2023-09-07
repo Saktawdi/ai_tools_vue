@@ -4,19 +4,24 @@
     <div class="part1">
       <div class="header">
         <img alt="Logo" src="../assets/logo.png" class="logo">
-        <h1 class="title">智能AI助手</h1>
-        <p class="tagline">与AI聊天、生成PPT，轻松实现您的需求</p>
+        <h1 class="title">AI智能多彩角</h1>
+        <p class="tagline">在AI智能多彩角，探索无限创意，畅享AI的魔幻世界！</p>
       </div>
       <div class="features">
         <div class="feature" @click="TOAichat">
           <img src="../assets/AIAvatar.jpg" alt="Chat Icon" class="feature-icon">
           <h2 class="feature-title">言随意转</h2>
-          <p class="feature-description">与智能AI进行有趣的对话，轻松解决疑问</p>
+          <p class="feature-description">与具有各种性格特点的AI进行有趣的语音对话并互动，在轻松的氛围下解决疑问</p>
         </div>
         <div class="feature" @click="TOMdppt">
           <img src="../assets/pptAvatar.jpg" alt="PPT Icon" class="feature-icon">
           <h2 class="feature-title">智构幻图</h2>
           <p class="feature-description">让AI帮您生成炫酷的PPT，节省时间与精力</p>
+        </div>
+        <div class="feature" @click="TOAiMusic">
+          <img src="../assets/MusicAvatar.jpg" alt="Music Icon" class="feature-icon">
+          <h2 class="feature-title">智韵绘声</h2>
+          <p class="feature-description">智韵绘声，音乐从心开始</p>
         </div>
       </div>
       <div class="cta">
@@ -44,7 +49,9 @@
         <span class="footer-description">本站仅供学习参考使用，请勿用于违法活动！</span>
       </div>
       <div>
-        ©2023 sakta_wdi版权所有。粤ICP备2023096562号
+        ©2023 sakta_wdi版权所有。
+        <br>
+        备案号：<a href="https://beian.miit.gov.cn">粤ICP备2023096562号-1</a>
       </div>
     </div>
   </div>
@@ -65,12 +72,18 @@ export default {
     },
     TOMdppt(){
       this.$router.push('/mdppt');
+    },
+    TOAiMusic(){
+      this.$router.push('/aimusic');
     }
   }
 }
 </script>
 
 <style scoped>
+a{
+  color: #243a49;
+}
 .home {
   text-align: center;
   padding: 50px 0;

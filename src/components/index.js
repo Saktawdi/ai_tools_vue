@@ -31,10 +31,10 @@ export async function init(url,Mheight = "375",Mwidth = "256",Mscale = 0.1,mx = 
   })
 
   // 鼠标跟踪方法
-  model.trackedPointers = [{ id: 1, type: 'pointerdown', flags: true }, { id: 2, type: 'mousemove', flags: true }]
+  // model.trackedPointers = [{ id: 1, type: 'pointerdown', flags: true }, { id: 2, type: 'mousemove', flags: true }]
   // 添加一个跟踪指针的数据
-  // model.trackedPointers[1] = { id: 1, type: 'pointerdown', flags: true };
-  // model.trackedPointers[2] = { id: 2, type: 'mousemove', flags: true };
+  model.trackedPointers[1] = { id: 1, type: 'pointerdown', flags: true };
+  model.trackedPointers[2] = { id: 2, type: 'mousemove', flags: true };
   // 添加模型到舞台
   app.stage.addChild(model)
   // 模型的缩放

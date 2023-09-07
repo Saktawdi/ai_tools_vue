@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const requestConfig={
-    baseURL1:"http://temp.sakta.top:82",
+    baseURL1:"https://api.sakta.top",
     baseURL2:"",
     timeout:60000
 }

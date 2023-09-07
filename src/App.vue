@@ -4,6 +4,7 @@
     <router-link :to="{ path: '/' }" :class="{ active: isActive('/') }">首页</router-link>
     <router-link :to="{ path: '/aichat' }" :class="{ active: isActive('/aichat') }">言随意转</router-link>
     <router-link :to="{ path: '/mdppt' }" :class="{ active: isActive('/mdppt') }">智构幻图</router-link>
+    <router-link :to="{ path: '/aimusic' }" :class="{ active: isActive('/aimusic') }">智韵绘声</router-link>
     <div class="profile-container" @mouseover="showMenu" @mouseleave="hideMenu">
       <img :src='getUserData.avatar' alt="Avatar" class="homeAvatar" />
       <div v-if="isMenuVisible" class="menu">

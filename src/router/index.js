@@ -34,6 +34,11 @@ const routes = [
     component:()=>import("../views/user/userInfoView.vue")
   },
   {
+    path:"/aimusic",
+    name:"aimusic",
+    component:()=>import("../views/AIMusic.vue")
+  },
+  {
     path:'/roleDisable',
     name:'roleDisable',
     component:()=>import("../views/disable/roleView.vue")
