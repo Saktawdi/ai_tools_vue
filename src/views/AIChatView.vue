@@ -45,8 +45,11 @@
             <div :class="{ 'user-message': message.fromUser, 'ai-message': !message.fromUser }">
               {{ message.content }}
             </div>
+            <div>
+              <img src="../assets/copy.svg" alt="复制" :class="{'icon-copy-user':message.fromUser,'icon-copy-ai':!message.fromUser}" @click="copyMsg(message.content)"/>
+            </div>
+            <audio class="audio-role" ref="audioPlayers" controls :src="streamingAudioUrl[index]" v-if="!message.fromUser && streamingAudioUrl[index]!==''" @canplay="readyPlay"></audio>
           </div>
-          <audio ref="audioPlayers" controls :src="streamingAudioUrl[index]" v-if="!message.fromUser && streamingAudioUrl[index]!==''" @canplay="readyPlay"></audio>
         </div>
       </div>
     </div>
@@ -65,10 +68,12 @@ import { showAlter } from "@/utils/showAlter";
 import live2D from "@/components/live2D.vue";
 import { live2dList } from "@/api/live2DData";
 import { requestConfig } from "@/request";
+import clipboard from 'clipboardy';
+// import VueMarkdown from 'vue-markdown';
 
 export default {
   components: {
-    live2D
+    live2D,
   },
   data() {
     return {
@@ -384,7 +389,7 @@ export default {
           "content": this.live2dList[this.Live2DIndex].role_info
         },
       ];
-      this.streamingAudioUrl = [""]
+      this.streamingAudioUrl = []
     },
     //保存历史记录
     saveChatHistory() {
@@ -409,6 +414,11 @@ export default {
       setTimeout(() => {
         this.$refs.live2DComponent.initLive2D();
       }, 10);
+    },
+    // 复制ai信息
+    async copyMsg(msg){
+      await clipboard.write(msg);
+      showAlter("复制完成~~(。・ω・。)",4);
     },
   },
 };
@@ -482,13 +492,17 @@ span {
   padding: 10px;
 }
 
-
+/* live2D角色头像容器 */
 .avatar-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 80px;
-  height: 80px;
+  width: 70%;
+  height: 70%;
+  min-width: 32px;
+  min-height: 32px;
+  max-width: 80px;
+  max-height: 80px;
   border-radius: 50%;
   /* 圆角头像 */
   margin: 15px;
@@ -544,6 +558,7 @@ span {
 
 .showList {
   position: absolute;
+  z-index: 99;
 }
 
 .historyList {
@@ -615,9 +630,13 @@ span {
   padding-left: 38px;
   padding-right: 38px;
   white-space: pre-line;
+  /* 固定其下copyicon */
+  position: relative;
 }
 
 .user-message {
+  /* 底部工具条 */
+  margin-bottom: 32px;
   right: 0;
   background-color: #b5dd74;
   border-radius: 10px;
@@ -713,5 +732,43 @@ span {
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* 信息复制按钮 */
+.icon-copy-ai{
+  position: absolute;
+  margin-top: 10px;
+  left: 34px;
+  height: 32px;
+  width: 32px;
+  opacity: 0.6;
+}
+
+.icon-copy-ai:hover{
+  height: 36px;
+  width: 36px;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.icon-copy-user{
+  position: absolute;
+  bottom: -34px;
+  right: 34px;
+  height: 32px;
+  width: 32px;
+  opacity: 0.6;
+}
+
+.icon-copy-user:hover{
+  height: 36px;
+  width: 36px;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.audio-role{
+  position: absolute;
+  left: 64px;
 }
 </style>

@@ -15,7 +15,6 @@ export async function init(url,Mheight = "375",Mwidth = "256",Mscale = 0.1,mx = 
   // 引入模型 
   // const model = await Live2DModel.from('../../src/assets/model2/HK416_805/normal.model3.json', { motionPreload: MotionPreloadStrategy.NONE,  })
   // 创建模型对象
-  // console.log("model::",model)
   const app = new PIXI.Application({
     // 配置模型舞台
     view: document.getElementById('canvas_view'),
@@ -29,7 +28,6 @@ export async function init(url,Mheight = "375",Mwidth = "256",Mscale = 0.1,mx = 
     // 宽度
     width: Mwidth
   })
-
   // 鼠标跟踪方法
   // model.trackedPointers = [{ id: 1, type: 'pointerdown', flags: true }, { id: 2, type: 'mousemove', flags: true }]
   // 添加一个跟踪指针的数据

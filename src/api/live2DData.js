@@ -5,8 +5,8 @@ export const live2dList = [
 {
     id:0,
     avatar:requestConfig.baseURL1 + "/profile/upload/2023/09/02/hir_20230902180743A004.png",
-    role_id:"-1",
-    height:"375",
+    role_id:"110",
+    height:"355",
     width:"256",
     scale:0.3,
     x:-50,

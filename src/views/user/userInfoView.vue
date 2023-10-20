@@ -111,12 +111,20 @@ export default {
     return {
       baseURL: requestConfig.baseURL1,
       showProfile: true,
-      currentSection: 'basic', // 默认显示基本信息
+      currentSection: 'notice', // 默认显示
       feedbackData: [],
       showDetailModal: false,
       selectedFeedback: {},
       notice: [] //通知列表
     }
+  },
+  mounted() {
+    if (this.getToken) {
+      this.getUserInfo();
+    } else {
+      this.$router.push({ path: '/login' });
+    }
+    this.showSection("notice");
   },
   computed: {
     getToken() {
@@ -124,7 +132,7 @@ export default {
     },
     getUserData() {
       return this.$store.getters.getUserInfo;
-    }
+    },
   },
   methods: {
     getNoticeTypeLabel(type) {
@@ -334,14 +342,6 @@ export default {
       }
     }
   },
-  mounted() {
-    if (this.getToken) {
-      this.getUserInfo();
-    } else {
-      this.$router.push({ path: '/login' });
-    }
-
-  }
 }
 </script>
 

@@ -29,7 +29,11 @@ export default {
     },
     methods:{
         async initLive2D() {
-           this.model = await init(this.url, this.height, this.width, this.scale,this.x, false);
+           var height = this.height * (window.innerHeight / 1001);
+           var width = this.width * (window.innerWidth / 1872);
+           var scale = this.scale * (window.innerWidth / 1872);
+           var x = this.x * (window.innerWidth / 1872);
+           this.model = await init(this.url, height, width, scale,x, false);
            this.model.internalModel.motionManager.state.reset();
            this.loadIdle();
         },
