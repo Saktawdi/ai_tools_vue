@@ -17,9 +17,12 @@
 - AI生成ppt
 - AI生成音乐
 
-##### 当前版本：![Static Badge](https://img.shields.io/badge/0.3.1-green)
+##### 当前版本：![Static Badge](https://img.shields.io/badge/0.3.2-green)
 
 [demo演示地址]: https://ai.sakta.top/
+
+> 1.新增复制功能
+> 2.完善：live2d角色大小自适应
 
 ##### 未来将更新的功能：
 
