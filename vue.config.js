@@ -5,11 +5,11 @@ module.exports = defineConfig({
   productionSourceMap: false, // false 表示关闭
   devServer: {
     proxy: {
-      '/api': {
-        target: 'https://waveformer.replicate.dev',
+      '/v1': {
+        target: 'https://api.replicate.com',
         changeOrigin: true,
         pathRewrite: {
-          '^/api': '/api'
+          '^/v1': '/v1'
         }
       }
     }

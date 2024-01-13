@@ -27,6 +27,8 @@
       <div class="cta">
         <p class="cta-text">体验智能AI的魔力，解锁无限可能！</p>
         <router-link to="/aichat" class="cta-button">开始聊天</router-link>
+        <p></p>
+        <github-button href="https://github.com/Saktawdi/ai_tools_vue" data-color-scheme="no-preference: light; light: dark_dimmed; dark: light_high_contrast;" data-size="large" data-show-count="true" aria-label="Star Saktawdi/ai_tools_vue on GitHub">Star</github-button>
       </div>
     </div>
     <div class="part2">
@@ -49,7 +51,7 @@
         <span class="footer-description">本站仅供学习参考使用，请勿用于违法活动！</span>
       </div>
       <div>
-        ©2023 sakta_wdi版权所有。
+        ©2023-©2024 sakta_wdi版权所有。
         <br>
         备案号：<a href="https://beian.miit.gov.cn">粤ICP备2023096562号-1</a>
       </div>
@@ -59,10 +61,12 @@
 
 <script>
 import particleBackground from "@/components/particleBackground.vue";
+import GithubButton from 'vue-github-button'
 
 export default {
   components:{
-        particleBackground
+        particleBackground,
+        GithubButton
   },
   mounted() {
   },

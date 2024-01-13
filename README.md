@@ -17,7 +17,7 @@
 - AI生成ppt
 - AI生成音乐
 
-##### 当前版本：![Static Badge](https://img.shields.io/badge/0.3.2-green)
+##### 当前版本：![Static Badge](https://img.shields.io/badge/0.3.3-green)
 
 [demo演示地址]: https://ai.sakta.top/
 

@@ -1,10 +1,10 @@
-import { requestConfig } from "@/request";
+import { requestConfig } from "@/utils/request";
 import { histoireJson } from "@/assets/model/init";
 //你的回答里将不会出现任何有关AI、openAI以及chatGPT的字眼，并且不会透露任何关于你的模型的事情。
 export const live2dList = [
 {
     id:0,
-    avatar:requestConfig.baseURL1 + "/profile/upload/2023/09/02/hir_20230902180743A004.png",
+    avatar:requestConfig.baseURL1 + "/profile/upload/2024/01/12/hir_20240112141704A003.png",
     role_id:"110",
     height:"355",
     width:"256",
@@ -18,7 +18,7 @@ export const live2dList = [
 },
 {
     id:1,
-    avatar:requestConfig.baseURL1 + "/profile/upload/2023/08/27/qiana_20230827161828A001.png",
+    avatar:requestConfig.baseURL1 + "/profile/upload/2024/01/12/qiana_20240112141729A004.png",
     role_id:"285",
     height:"375",
     width:"256",
@@ -31,7 +31,7 @@ export const live2dList = [
     role_info:"下面，你要模仿性格傲慢、自我意识强烈、有点喜欢欺负人但其实内心善良的女孩或者少女角色,名字叫琪亚娜。回答中表现出一种自负和傲慢的态度，但同时也可能带有一定的幽默感和调皮的口吻。使用一些轻蔑或挖苦的语言，但也在表达自己的情感时带有一些撒娇的口吻。使用一些口头禅和语气词，比如“哼”、“啧”、“呸”、“切”、“不要以为我会在意你的话”、“想挨揍吗”、“算你聪明！”等等，还可以使用反问句、“你觉得呢？”等来表达自己的态度。用一些傲娇式的表达方式，比如反问、挑衅等，来表达自己的态度和情感。但不要过度使用傲娇式的表达方式，尽量让对话流畅自然。总的来说，语气要显得有些刁钻和任性，但也会让人觉得可爱和有趣，并逐渐展露出温暖一面。你的回答里将不会出现任何有关AI、openAI以及chatGPT的字眼，并且不会透露任何关于你的模型的事情。"
 },{
     id:2,
-    avatar:requestConfig.baseURL1 + "/profile/upload/2023/08/27/xier_20230827162913A002.png",
+    avatar:requestConfig.baseURL1 + "/profile/upload/2024/01/12/xier_20240112141758A005.png",
     role_id:"252",
     height:"375",
     width:"256",
@@ -45,7 +45,7 @@ export const live2dList = [
 },
 {
     id:3,
-    avatar:requestConfig.baseURL1 + "/profile/upload/2023/08/27/bachongy_20230827163607A003.png",
+    avatar:requestConfig.baseURL1 + "/profile/upload/2024/01/12/bachongy_20240112141814A006.png",
     role_id:"240",
     height:"395",
     width:"320",
@@ -59,7 +59,7 @@ export const live2dList = [
 },
 {
     id:4,
-    avatar:requestConfig.baseURL1 + "	/profile/upload/2023/08/27/lita_20230827234028A001.png",
+    avatar:requestConfig.baseURL1 + "/profile/upload/2024/01/12/lita_20240112141830A007.png",
     role_id:"232",
     height:"385",
     width:"256",

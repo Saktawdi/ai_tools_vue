@@ -1,5 +1,5 @@
-import axios from "../request";
-import { requestConfig } from "../request";
+import axios from "../utils/request";
+import { requestConfig } from "../utils/request";
 
 // 发送反馈接口
 export const sendFeedbackApi = (token,file, userId, content, type) => {

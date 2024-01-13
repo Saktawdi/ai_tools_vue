@@ -1,4 +1,4 @@
-import { requestConfig } from "@/request";
+import { requestConfig } from "@/utils/request";
 export const histoireJson = {
   "version": "1.0.0",
   "model": "model.moc",

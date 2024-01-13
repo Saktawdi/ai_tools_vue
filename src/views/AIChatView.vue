@@ -6,14 +6,6 @@
     <button class="showList button" v-if="isHidden" @click="toggleHidden" style="width:48px;">
       <img src="../assets/right.svg" alt="显性" class="show-icon" style="width:15px;" />
     </button>
-    <transition name="slide" mode="out-in">
-      <div class="live2d-role" v-if="isHidden">
-        <div v-for="(role, index) in live2dList" :key="role.id" class="avatar-container"
-          :class="{ 'active-avatar': Live2DIndex === index }" @click="updateLive2DIndex(index)">
-          <img :src="role.avatar" alt="Role Avatar" class="live2d-avatar">
-        </div>
-      </div>
-    </transition>
     <div class="historyList" :class="{ 'hidden': isHidden }">
       <div class="optionBox">
         <button class="newChat button" @click="createNewChat">
@@ -31,11 +23,30 @@
         :class="{ 'historyItem': true, 'historyItemActive': historyItem.isActive }"
         @click="activateHistoryItem(historyItem.id)">
         <span>{{ historyItem.name }}</span>
-        <img class="delete-icon" @click="deleteHistoryItem(historyItem.id)" src="../assets/delete.svg" alt="Delete Icon"
-          style="margin-right:15px;width:28px;" />
+        <img class="rename-icon icon-item" @click="reNameHistoryItem(historyItem.id)" src="../assets/bx-rename.svg"
+          alt="重命名" style="margin-right:0px;width:28px;" />
+        <img class="delete-icon icon-item" @click="deleteHistoryItem(historyItem.id)" src="../assets/delete.svg" alt="删除"
+          style="margin-right:0px;width:28px;" />
       </div>
     </div>
     <div class="chat-container" ref="chatContainer">
+      <!-- 选择模型，角色仓库 -->
+      <div class="toolsBox" v-if="nowChatHistory.length === 0">
+        <!-- <custom-select class="customselect" v-model="modelSelected"></custom-select> -->
+
+        <!-- TODO:角色仓库 -->
+        <button class="btn role-warehouse" @click="openRoleStore">角色仓库</button>
+        <button class="btn import-file" @click="openFileDialog">PDF 分析</button>
+        <input type="file" ref="fileInput" style="display: none" @change="onFileSelected" accept="application/pdf" />
+      </div>
+      <transition name="slide" mode="out-in">
+        <div class="live2d-role" v-if="nowChatHistory.length === 0">
+          <div v-for="(role, index) in live2dList" :key="role.id" class="avatar-container"
+            :class="{ 'active-avatar': Live2DIndex === index }" @click="updateLive2DIndex(index)">
+            <img :src="role.avatar" alt="Role Avatar" class="live2d-avatar">
+          </div>
+        </div>
+      </transition>
       <div class="messagesBox">
         <div v-for="(message, index) in nowChatHistory" :key="index" class="messages">
           <div class="avatar" :class="{ 'user-avatar': message.fromUser, 'ai-avatar': !message.fromUser }">
@@ -46,15 +57,19 @@
               {{ message.content }}
             </div>
             <div>
-              <img src="../assets/copy.svg" alt="复制" :class="{'icon-copy-user':message.fromUser,'icon-copy-ai':!message.fromUser}" @click="copyMsg(message.content)"/>
+              <img src="../assets/copy.svg" alt="复制"
+                :class="{ 'icon-copy-user': message.fromUser, 'icon-copy-ai': !message.fromUser }"
+                @click="copyMsg(message.content)" />
             </div>
-            <audio class="audio-role" ref="audioPlayers" controls :src="streamingAudioUrl[index]" v-if="!message.fromUser && streamingAudioUrl[index]!==''" @canplay="readyPlay"></audio>
+            <audio class="audio-role" ref="audioPlayers" controls :src="streamingAudioUrl[index]"
+              v-if="!message.fromUser && streamingAudioUrl[index] !== ''" @canplay="readyPlay"></audio>
           </div>
         </div>
       </div>
     </div>
-    <textarea ref="textarea" v-model="userInput" @keydown.enter="handleEnterKey" class="user-textarea" placeholder="畅你所言"
-      :style="{ 'height': textareaHeight }" :disabled="!isTextareaEnabled"></textarea>
+    <textarea ref="textarea" v-model="userInput" @keydown.enter="handleEnterKey" class="user-textarea"
+      placeholder="畅你所言，按Enter发送，Shift+Enter换行" :style="{ 'height': textareaHeight }"
+      :disabled="!isTextareaEnabled"></textarea>
     <div v-if="!isTextareaEnabled" class="loading-overlay">
       <!-- 加载动画效果 -->
       <div class="loading-spinner"></div>
@@ -67,20 +82,23 @@ import calcTextareaHeight from '@/utils/calcTextareaHeight';
 import { showAlter } from "@/utils/showAlter";
 import live2D from "@/components/live2D.vue";
 import { live2dList } from "@/api/live2DData";
-import { requestConfig } from "@/request";
+import { requestConfig } from "@/utils/request";
 import clipboard from 'clipboardy';
-// import VueMarkdown from 'vue-markdown';
+import * as pdfjsLib from 'pdfjs-dist/build/pdf';
+import 'pdfjs-dist/build/pdf.worker.entry';
+const Swal = require('sweetalert2')
+
 
 export default {
   components: {
-    live2D,
+    live2D
   },
   data() {
     return {
       live2dList: live2dList,
       Live2DIndex: 0,
       streamingAudioUrl: [], // 存储流式音频 URL
-      audioReady:false,
+      audioReady: false,
       chatHistory: [], // 存放聊天历史
       nowChatHistory: [],// 现在条目的历史记录
       isHidden: false, // 控制历史记录是否隐藏的布尔值
@@ -91,13 +109,15 @@ export default {
       ],//历史聊天条目
       userInput: '',   // 用户输入
       isTextareaEnabled: true,
-      textareaHeight: '24px',
+      textareaHeight: '32px',
       messages: [
         {
           "role": "system",
           "content": "你是一个可靠的助手，将尽力帮助用户完成目标。你的回答里将不会出现任何有关AI、openAI以及chatGPT的字眼，并且不会透露任何关于你的模型的事情。"
         },
       ],
+      modelSelected: "gpt-3.5-turbo-16k-0613",//模型选择
+
     };
   },
   mounted() {
@@ -126,7 +146,7 @@ export default {
       return { id: item.id, name: item.item, isActive: false };
     });
     // 初始化性格特点
-    if(this.live2dList[this.Live2DIndex].role_info != ""){
+    if (this.live2dList[this.Live2DIndex].role_info != "") {
       this.messages[0].content = this.live2dList[this.Live2DIndex].role_info;
     }
   },
@@ -172,21 +192,20 @@ export default {
       })
       const container = this.$refs.chatContainer;
       container.scrollTop = container.scrollHeight;
-      // TODO: 调用 AI 进行回复，将 AI 回复添加到 chatHistory 中
       this.userInput = ''; // 清空用户输入
       this.streamingAudioUrl.push("");
-      await this.AiRespon(this.userInput);
+      await this.AiRespon();
     },
     // 处理AI回复
     async AiRespon() {
       this.isTextareaEnabled = false;
-      const url =  requestConfig.baseURL1 + '/v1/chat/pri/send/stream';
+      const url = requestConfig.baseURL1 + '/v1/chat/pri/send/stream';
       const headers = {
         'token': this.getToken,
         'Content-Type': 'application/json'
       };
       const data = {
-        "model": "gpt-3.5-turbo-16k",
+        "model": this.modelSelected,
         "messages": this.messages,
         "temperature": 0.5,
         "stream": true
@@ -198,17 +217,15 @@ export default {
       })
         .then(response => {
           if (response.status === 401) {
-            showAlter("登录已过期，请重新登录！")
-            this.$store.dispatch('clearToken')
-            this.$router.push('/login')
+            this.$store.dispatch('clearToken');
+            // this.$store.dispatch('clearUserInfo');
+            this.$router.push('/login');
+            showAlter("登录已过期，请重新登录")
           }
-          if (response.status === 500) {
-            showAlter("AI服务器异常，请稍后再试")
+          if (response.status !== 200) {
+            showAlter("error-AiRespon!错误代码：", response.status)
             this.streamingAudioUrl.push("")
-          }
-          if(response.status === 404){
-            showAlter("AI服务器正在维护中哦~请耐心等待")
-            this.streamingAudioUrl.push("")
+            return
           }
           const aiMessage = {
             content: '',
@@ -276,7 +293,7 @@ export default {
     },
     // 处理音频数据
     async playAudio(content) {
-      if(this.live2dList[this.Live2DIndex].role_id === "-1"){
+      if (this.live2dList[this.Live2DIndex].role_id === "-1") {
         this.streamingAudioUrl.push("");
         return;
       }
@@ -299,14 +316,14 @@ export default {
             audioElement.load();
             audioElement.play();
           } catch (error) {
-            console.log("playAudioAtIndex::error::",error)
+            console.log("playAudioAtIndex::error::", error)
           }
           // const randomIndex = Math.floor(Math.random() * this.live2dList[this.Live2DIndex].talk.length);
           this.$refs.live2DComponent.loadTalk();
-      }, 500);
+        }, 500);
       }
     },
-    readyPlay(){
+    readyPlay() {
       this.audioReady = true;
     },
     // 删除历史记录
@@ -336,10 +353,51 @@ export default {
         }
       }
     },
+    //重命名历史记录
+    reNameHistoryItem(id) {
+      if (!this.isTextareaEnabled) {
+        showAlter("请耐心等待当前会话结束！")
+        return
+      }
+      const index = this.chatHistoryItems.findIndex(item => item.id === id);
+      if (index !== -1) {
+        Swal.fire({
+          title: "输入重命名的标题：",
+          input: "text",
+          inputAttributes: {
+            autocapitalize: "off"
+          },
+          showCancelButton: true,
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          showLoaderOnConfirm: true,
+          preConfirm: (newName) => {
+            this.chatHistoryItems[index].name = newName.trim(); // 去除用户可能输入的首尾空格
+            this.chatHistory[index].item = this.chatHistoryItems[index].name;
+          },
+          allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+          if (result.isConfirmed) {
+            showAlter(`标题已经更新为：${this.chatHistoryItems[index].name}`, 2)
+            this.saveChatHistory();
+          }
+        });
+
+      }
+    },
     // 激活历史记录
     activateHistoryItem(id) {
       if (!this.isTextareaEnabled) {
         return
+      }
+      //存储的长度   现有长度
+      if (this.chatHistory.length < this.chatHistoryItems.length) {
+        this.pushChatHistory();
+        this.saveChatHistory();
+        const dialogInstance = showAlter("正在存储，请稍等", 5);
+        setTimeout(() => {
+          dialogInstance.close();
+        }, 200);
       }
       const index = this.chatHistoryItems.findIndex(item => item.id === id);
       if (index !== -1) {
@@ -381,7 +439,7 @@ export default {
           item.isActive = false;
         }
       });
-      this.chatHistory.push({ id: itemTemp.id, item: itemTemp.name, data: this.nowChatHistory ,audio:this.streamingAudioUrl});
+      this.chatHistory.push({ id: itemTemp.id, item: itemTemp.name, data: this.nowChatHistory, audio: this.streamingAudioUrl });
       this.nowChatHistory = [];
       this.messages = [
         {
@@ -391,15 +449,22 @@ export default {
       ];
       this.streamingAudioUrl = []
     },
+    //插入历史记录
+    pushChatHistory(){
+      const n = this.chatHistoryItems.length;
+      if (n >= 1) {
+        this.chatHistory.push({ 
+          id: this.chatHistoryItems[n - 1].id, 
+          item: this.chatHistoryItems[n - 1].name, 
+          data: this.nowChatHistory, 
+          audio: this.streamingAudioUrl 
+        });
+      }
+    },
     //保存历史记录
     saveChatHistory() {
-      if (this.chatHistory.length != this.chatHistoryItems.length) {
-        var n = this.chatHistoryItems.length;
-        if (n - 1 < 0) n = 0;
-        this.chatHistory.push({ id: this.chatHistoryItems[n - 1].id, item: this.chatHistoryItems[n - 1].name, data: this.nowChatHistory ,audio:this.streamingAudioUrl});
-      }
       localStorage.setItem('chatHistory', JSON.stringify(this.chatHistory));
-      showAlter("保存成功", 1);
+      showAlter("保存成功", 2);
     },
     //隐藏历史列表
     toggleHidden() {
@@ -408,7 +473,7 @@ export default {
     // 改变live2D角色
     updateLive2DIndex(index) {
       this.Live2DIndex = index;
-      if(this.live2dList[this.Live2DIndex].role_info != ""){
+      if (this.live2dList[this.Live2DIndex].role_info != "") {
         this.messages[0].content = this.live2dList[this.Live2DIndex].role_info;
       }
       setTimeout(() => {
@@ -416,9 +481,58 @@ export default {
       }, 10);
     },
     // 复制ai信息
-    async copyMsg(msg){
+    async copyMsg(msg) {
       await clipboard.write(msg);
-      showAlter("复制完成~~(。・ω・。)",4);
+      showAlter("复制完成~~(。・ω・。)", 4);
+    },
+    //pdf分析
+    openFileDialog() {
+      // 触发文件输入的点击事件
+      this.$refs.fileInput.click();
+    },
+    onFileSelected(event) {
+      // 获取选中的文件
+      const file = event.target.files[0];
+      if (file) {
+        this.parsePDF(file);
+      }
+    },
+    parsePDF(file) {
+      // 创建文件阅读器
+      const dialogInstance = showAlter("正在读取文件...", 5)
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          // 读取PDF文件内容
+          const typedArray = new Uint8Array(e.target.result);
+          const pdf = await pdfjsLib.getDocument(typedArray).promise;
+
+          // 定义一个数组来存储所有页面的文本
+          let pdfText = [];
+
+          for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+            const page = await pdf.getPage(pageNumber);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items.map(item => item.str).join(' ');
+            // 将当前页面的文本推入数组
+            pdfText.push(pageText);
+          }
+          // 打印整个PDF文档的文本内容
+          console.log(pdfText.join('\n\n'));
+          this.userInput = "以下是pdf读取到的数据，帮我总结分析一下：\n" + pdfText.join('\n\n');
+          this.sendMessage();
+          dialogInstance.close();
+          showAlter("读取成功,", 4)
+        } catch (error) {
+          console.error('Error reading PDF:', error);
+        }
+      };
+      // 以二进制形式读取文件
+      reader.readAsArrayBuffer(file);
+    },
+    //角色仓库
+    openRoleStore(){
+      showAlter("此功能还在内测，敬请期待...")
     },
   },
 };
@@ -442,6 +556,7 @@ export default {
 span {
   width: 100%;
   text-align: center;
+  overflow: hidden;
 }
 
 .AIChat {
@@ -459,38 +574,67 @@ span {
 }
 
 /* live2d选择角色 */
-
-/* 进场滑动效果 */
-.slide-enter-active{
+/* 
+.slide-enter-active {
   transform: translateX(-100%);
   transition: transform 0.5s ease-in-out;
 }
-
 .slide-enter-to {
   transform: translateX(0%);
 }
-
-/* 出场滑动效果 */
 .slide-leave-active {
-  transition: transform 0.5s ease-in-out; /* 定义过渡效果 */
+  transition: transform 0.5s ease-in-out;
 }
-
 .slide-leave-to {
-  transform: translateX(-100%); /* 结束状态 */
-}
+  transform: translateX(-100%);
+} 
+*/
+
 
 .live2d-role {
   position: absolute;
-  width: 20%;
-  height: 30%;
-  bottom: 10px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  width: 30%;
+  height: 15%;
+  top: 40%;
+  left: 45%;
+  display: flex;
+  flex-wrap: nowrap;
+  /* 确保头像不会换行 */
   overflow: hidden;
-  overflow-x: auto;
-  overflow-y: auto;
+  /* 隐藏滚动条 */
   padding: 10px;
+  border-left: 1px solid #c9d6df;
+  border-right: 1px solid #c9d6df;
+  z-index: 0;
 }
+
+.avatar-container {
+  display: inline-flex;
+  /* 使用inline-flex使得元素横向排列 */
+  margin-right: 10px;
+  /* 根据需求可以调整头像之间的间距 */
+  animation: scrollAvatar 20s linear infinite;
+  /* 应用滚动动画 */
+}
+
+/* 定义滚动动画 */
+@keyframes scrollAvatar {
+  0% {
+    transform: translateX(550%);
+  }
+
+  100% {
+    transform: translateX(-550%);
+    /* 假设头像总宽度是容器的两倍 */
+  }
+}
+
+/* 鼠标悬停时停止滚动 */
+.avatar-container:hover {
+  animation-play-state: paused;
+  /* 暂停动画 */
+}
+
 
 /* live2D角色头像容器 */
 .avatar-container {
@@ -610,6 +754,19 @@ span {
   transition: background-image 0.5s ease, transform 0.5s;
 }
 
+/* 条目操作icon图标 */
+.icon-item {
+  border-radius: 50%;
+  /* 使元素形状成为圆形 */
+  transition: box-shadow 0.3s ease;
+  /* 平滑过渡效果 */
+}
+
+.icon-item:hover {
+  box-shadow: 0 0 2px 2px rgba(71, 167, 235, .86);
+}
+
+
 .chat-container {
   background-color: var(--card-background);
   width: 100%;
@@ -649,6 +806,8 @@ span {
 .ai-message {
   background-color: #84cff0;
   border-radius: 10px;
+  /* 给工具条预留位置 */
+  margin-bottom: 42px;
   padding: 10px;
   align-self: flex-end;
   width: fit-content;
@@ -735,23 +894,23 @@ span {
 }
 
 /* 信息复制按钮 */
-.icon-copy-ai{
+.icon-copy-ai {
   position: absolute;
-  margin-top: 10px;
+  bottom: -42px;
   left: 34px;
   height: 32px;
   width: 32px;
   opacity: 0.6;
 }
 
-.icon-copy-ai:hover{
+.icon-copy-ai:hover {
   height: 36px;
   width: 36px;
   opacity: 1;
   transition: opacity 0.3s ease-in-out;
 }
 
-.icon-copy-user{
+.icon-copy-user {
   position: absolute;
   bottom: -34px;
   right: 34px;
@@ -760,15 +919,47 @@ span {
   opacity: 0.6;
 }
 
-.icon-copy-user:hover{
+.icon-copy-user:hover {
   height: 36px;
   width: 36px;
   opacity: 1;
   transition: opacity 0.3s ease-in-out;
 }
 
-.audio-role{
+.audio-role {
   position: absolute;
-  left: 64px;
+  left: 68px;
+  bottom: -54px;
+}
+
+.toolsBox {
+  display: flex;
+  position: fixed;
+  align-items: center;
+  justify-content: center;
+  /* 水平居中 */
+  padding: 10px;
+  margin: 0 10px;
+  width: 50%;
+  height: 128px;
+  top: 20%;
+  left: 60%;
+  transform: translateX(-50%);
+  /* 结合left使用，确保元素准确居中 */
+  border-top: 3px solid #e0e0e0;
+  /* 浅色上边框 */
+  border-bottom: 1px solid #e0e0e0;
+  /* 浅色下边框 */
+}
+
+.toolsBox:hover {
+  border-top-color: #333;
+  /* 悬停时的上边框颜色更深 */
+  border-bottom-color: #333;
+  /* 悬停时的下边框颜色更深 */
+}
+
+.customselect{
+
 }
 </style>

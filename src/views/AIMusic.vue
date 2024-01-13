@@ -46,7 +46,7 @@
 <script>
 import WaveSurfer from 'wavesurfer.js';
 import particleBackground from "@/components/particleBackground.vue";
-import { requestConfig } from "@/request";
+import { requestConfig } from "@/utils/request";
 import { showAlter } from "@/utils/showAlter";
 import { v4 as uuidv4 } from 'uuid';
 import calcTextareaHeight from '@/utils/calcTextareaHeight';
@@ -167,14 +167,6 @@ export default {
                     stream: false
                 })
             });
-            if (response1.status === 401) {
-                // alterInstance.close();
-                this.starting = false;
-                showAlter("登录已过期，请重新登录！")
-                this.$store.dispatch('clearToken')
-                this.$router.push('/login')
-                return;
-            }
             if (response1.status === 500) {
                 // alterInstance.close();
                 this.starting = false;
@@ -195,11 +187,12 @@ export default {
             // Step 2: Call the second API to generate music based on AI response
             var predictionId = "";
             try {
-                const response2 = await this.postPromet(aiResponse, randomUUID);
+                const response2 = await this.postPrompt(aiResponse, randomUUID);
                 const data2 = await response2.json();
                 predictionId = data2.id;
             } catch (error) {
                 console.log("发送给模型失败：", error)
+                showAlter("发送给模型失败")
                 // alterInstance.close();
                 this.starting = false;
                 return;
@@ -210,19 +203,34 @@ export default {
             // Step 3: Poll the third API to check if music generation is completed
             this.startPolling(predictionId);
         },
-        async postPromet(aiContent, randomUUID) {
-            const output = await fetch('/api/musicgen', {
+        async postPrompt(aiContent, randomUUID) {
+            const requestBody = {
+                version: "b05b1dff1d8c6dc63d14b0cdb42135378dcb87f6373b0d3d341ede46e59e2b38",
+                input: {
+                    model_version: "stereo-large",
+                    prompt: aiContent,
+                    duration:  this.timeInSeconds
+                }
+            };
+            const output = await fetch('/v1/predictions', {
                 method: 'POST',
                 headers: {
-                    "Authorization": "token " + randomUUID,
+                    "X-Authorization": "Token " + randomUUID,
+                    "Authorization": "Token r8_EyxOUddJe66G3vFdE005oHyDIQYX2Mo29bbVw",
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ prompt: aiContent, duration: this.timeInSeconds })
+                body: JSON.stringify(requestBody)
             });
             return output;
         },
         async checkStatus(predictionId) {
-            const response = await fetch(`/api/${predictionId}`);
+            const response = await fetch(`/v1/predictions/${predictionId}`,
+            {
+                method:'GET',
+                headers: {
+                    "Authorization": "Token r8_EyxOUddJe66G3vFdE005oHyDIQYX2Mo29bbVw"
+                }
+            });
             const data = await response.json();
             if (data.status === "succeeded") {
                 // 音乐生成完成

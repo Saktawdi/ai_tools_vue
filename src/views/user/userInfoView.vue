@@ -102,7 +102,7 @@ import { showAlter } from '@/utils/showAlter';
 import Swal from "sweetalert2";
 import { getNoticeListApi } from "@/api/notice";
 import { getFeedbackListApi, sendFeedbackApi } from "@/api/feedback";
-import { requestConfig } from "@/request";
+import { requestConfig } from "@/utils/request";
 
 export default {
   components: {

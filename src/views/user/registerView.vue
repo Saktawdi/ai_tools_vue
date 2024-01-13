@@ -31,7 +31,7 @@ import particleBackground from "@/components/particleBackground.vue";
 import defaultHeadImg from "@/assets/default5.png";
 import { registerApi, uploadAvatar } from "@/api/getUser";
 import { showAlter } from '@/utils/showAlter';
-import { requestConfig } from "@/request";
+import { requestConfig } from "@/utils/request";
 
 export default {
   components: {

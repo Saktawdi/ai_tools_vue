@@ -2,11 +2,11 @@
   <div class="content">
     <div class="mdView">
       <div class="ai">
-        <input type="text" placeholder="这里输入您想创建的主题，向AI提问，例如：《每周工作汇报》" v-model="userQuestion">
+        <input type="text" class="input-md" placeholder="这里输入您想创建的主题，向AI提问，例如：《每周工作汇报》" v-model="userQuestion">
         <button @click="askAI">提问</button>
         <button @click="printToPDF">导出PDF</button>
       </div>
-      <textarea id="mdContent" type="text" ref="textarea" placeholder="将在这里展示/输入/修改md" v-model="markdown"
+      <textarea id="mdContent" class="textarea-md" type="text" ref="textarea" placeholder="将在这里展示/输入/修改md" v-model="markdown"
         :style="{ 'height': textareaHeight }" @input="renderMarpitHtml"></textarea>
     </div>
     <div class="slideView">
@@ -35,7 +35,7 @@ import { showAlter } from "@/utils/showAlter";
 import generatePPTXFromHTML from "@/utils/html2maker";
 import getCurrentPageHtml from "@/utils/getCurrentPageHtml";
 import { baseStyleMD, themeDatas ,themeCSS} from "@/api/baseStyleMD"
-import { requestConfig } from '@/request';
+import { requestConfig } from '@/utils/request';
 
 export default {
   components: {
@@ -410,8 +410,8 @@ body {
 }
 
 /* 输入框样式 */
-input[type="text"],
-textarea {
+.input-md,
+.textarea-md {
   width: 98%;
   padding: 10px;
   margin-bottom: 10px;

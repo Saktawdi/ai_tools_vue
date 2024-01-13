@@ -2,9 +2,10 @@ const Swal = require('sweetalert2')
 /*
 0：error
 1:success
-2.notic
+2.top-success
 3.question
-4.loading...
+4.top-notic
+5.loading...
 99.normal
 -1.close
 */
