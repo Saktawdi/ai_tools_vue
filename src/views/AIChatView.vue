@@ -32,7 +32,7 @@
     <div class="chat-container" ref="chatContainer">
       <!-- 选择模型，角色仓库 -->
       <div class="toolsBox" v-if="nowChatHistory.length === 0">
-        <!-- <custom-select class="customselect" v-model="modelSelected"></custom-select> -->
+        <custom-select class="customselect" v-model="modelSelected"></custom-select>
 
         <!-- TODO:角色仓库 -->
         <button class="btn role-warehouse" @click="openRoleStore">角色仓库</button>
@@ -86,12 +86,13 @@ import { requestConfig } from "@/utils/request";
 import clipboard from 'clipboardy';
 import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 import 'pdfjs-dist/build/pdf.worker.entry';
+import CustomSelect from '@/components/AIChatView/CustomSelect.vue';
+
 const Swal = require('sweetalert2')
-
-
 export default {
   components: {
-    live2D
+    live2D,
+    CustomSelect
   },
   data() {
     return {
@@ -117,7 +118,6 @@ export default {
         },
       ],
       modelSelected: "gpt-3.5-turbo-16k-0613",//模型选择
-
     };
   },
   mounted() {
@@ -450,14 +450,14 @@ export default {
       this.streamingAudioUrl = []
     },
     //插入历史记录
-    pushChatHistory(){
+    pushChatHistory() {
       const n = this.chatHistoryItems.length;
       if (n >= 1) {
-        this.chatHistory.push({ 
-          id: this.chatHistoryItems[n - 1].id, 
-          item: this.chatHistoryItems[n - 1].name, 
-          data: this.nowChatHistory, 
-          audio: this.streamingAudioUrl 
+        this.chatHistory.push({
+          id: this.chatHistoryItems[n - 1].id,
+          item: this.chatHistoryItems[n - 1].name,
+          data: this.nowChatHistory,
+          audio: this.streamingAudioUrl
         });
       }
     },
@@ -531,7 +531,7 @@ export default {
       reader.readAsArrayBuffer(file);
     },
     //角色仓库
-    openRoleStore(){
+    openRoleStore() {
       showAlter("此功能还在内测，敬请期待...")
     },
   },
@@ -959,7 +959,4 @@ span {
   /* 悬停时的下边框颜色更深 */
 }
 
-.customselect{
-
-}
 </style>

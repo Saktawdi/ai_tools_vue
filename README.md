@@ -17,17 +17,28 @@
 - AI生成ppt
 - AI生成音乐
 
-##### 当前版本：![Static Badge](https://img.shields.io/badge/0.3.3-green)
+##### 当前版本：![Static Badge](https://img.shields.io/badge/0.4.0-green)
 
 [demo演示地址]: https://ai.sakta.top/
 
-> 1.新增复制功能
-> 2.完善：live2d角色大小自适应
+> [!TIP]
+>
+> **0.4.0**
+>
+> 1.新增模型选择
+>
+> 2.新增pdf文件分析
+>
+> 3.新增历史记录重命名
+>
+> 4.优化历史记录保存体验,角色选择逻辑优化
 
 ##### 未来将更新的功能：
 
 - AI聊天工具
-  - [ ] 导入文档快速总结
+  - [x] 导入文档快速总结
+  - [x] 模型选择
+    - [ ] 多维度AI（谷歌，百度，讯飞等）
 - AI生成音乐
   - [ ] 音乐文件续写（生成）
 
@@ -121,6 +132,12 @@ npm run serve
 > 用于htmltocanvas于pptxgenjs的算法，归属md生成ppt功能
 
 # 界面截图
+
+> [!IMPORTANT] 
+>
+> 更新演示[无加速]
+
+![hLYDR.gif](https://i0.imgs.ovh/2024/01/13/hLYDR.gif)
 
 > 首页
 

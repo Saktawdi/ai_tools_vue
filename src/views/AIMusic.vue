@@ -15,7 +15,7 @@
             <div class="option-box" v-else>
                 <!-- 参数输入框 -->
                 <div class="input-text-container">
-                    <textarea ref="textarea" v-model="userText" class="user-textarea-prompt"
+                    <textarea ref="textarea" v-model="userText" class="user-textarea-prompt textarea-music"
                         :placeholder="exampleText[randomIndex]" :style="{ 'height': textareaHeight }"></textarea>
                     <img src="../assets/random.svg" alt="随机" class="random-icon" style="width:32px;" @click="randomSample"/>
                 </div>
@@ -574,6 +574,16 @@ export default {
     bottom: 0px;
     width: 100%;
     z-index: -1;
+}
+
+.textarea-music{
+    width: 98%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+    font-size: 18px;
 }
 </style>
   
