@@ -39,14 +39,29 @@ export default {
   },
   data() {
     return {
-      avatar: defaultHeadImg,//文件
+      avatar: null,//文件
       baseURL: requestConfig.baseURL1,
       avatarUrl: '',//回显的头像地址
       uploadedUrl:'',//注册提交的上传的头像地址,防止重复上传
       username: '',
       email: '',
-      password: ''
+      password: '',
+      defaultAvatarPools:[
+        '/profile/upload/2024/01/14/default5_20240114155301A002.png',
+        "/profile/upload/2024/01/14/default8_20240114155831A004.png",
+        '/profile/upload/2024/01/14/default6_20240114160026A005.png',
+        '/profile/upload/2024/01/14/default7_20240114160049A006.png',
+        '/profile/upload/2024/01/14/default1_20240114160108A007.png',
+        '/profile/upload/2024/01/14/default2_20240114160125A008.png',
+        '/profile/upload/2024/01/14/default3_20240114160144A009.png',
+        '/profile/upload/2024/01/14/default4_20240114160205A010.png'
+      ],
+      randomIndex:0,
     };
+  },
+  mounted(){
+    this.randomIndex = Math.floor(Math.random() * this.defaultAvatarPools.length);
+    this.avatarUrl = this.baseURL + this.defaultAvatarPools[this.randomIndex];
   },
   methods: {
     //打开选择头像
@@ -76,7 +91,7 @@ export default {
         return;
       }
       let uploadRes;
-      if (this.avatarUrl && !this.uploadedUrl && (this.baseURL + this.uploadedUrl) != this.avatarUrl) {
+      if (!this.avatarUrl.includes(this.baseURL,0)) {
         uploadRes = await uploadAvatar(this.avatar);
         if (uploadRes.data.code === 0) {
           this.avatarUrl = this.baseURL + uploadRes.data.fileName;
@@ -85,11 +100,8 @@ export default {
           showAlter("上传头像失败，请重试一次吧~", 0)
           return;
         }
-      } else if(this.uploadedUrl){
-        //默认头像
-        this.avatarUrl = '';
       }else{
-        this.uploadedUrl = '/profile/upload/2023/08/14/default5_20230814150801A002.png';
+        this.uploadedUrl = this.defaultAvatarPools[this.randomIndex];
       }
       const registerRes = await registerApi(this.username, this.email, this.uploadedUrl, this.password)
       if (registerRes.data.code === 0) {
@@ -177,4 +189,9 @@ input {
   width: 128px;
   border-radius: 64px;
 }
+
+.avatar-img:hover{
+  box-shadow: 0 0 2px 2px rgba(71,167,235,.86);
+}
+
 </style>

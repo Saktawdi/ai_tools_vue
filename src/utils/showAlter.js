@@ -6,6 +6,7 @@ const Swal = require('sweetalert2')
 3.question
 4.top-notic
 5.loading...
+6.确定弹窗，1确定0取消
 99.normal
 -1.close
 */
@@ -69,6 +70,26 @@ export function showAlter(msg, type = 99) {
       }
     })
   } 
+  else if (type === 6) {
+    return Swal.fire({
+      title: '确定提示',  
+      text: msg,               // 弹窗的文本内容，传入的 msg 参数
+      icon: 'warning',         // 弹窗的图标类型，这里是一个警告图标
+      showCancelButton: true,  // 显示 "取消" 按钮
+      confirmButtonColor: '#3085d6',  // "确定" 按钮的颜色
+      cancelButtonColor: '#d33',      // "取消" 按钮的颜色
+      confirmButtonText: 'Yes',       // "确定" 按钮的文本
+      cancelButtonText: 'No'          // "取消" 按钮的文本
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // 如果用户点击 "确定"，返回 1
+        return 1;
+      } else {
+        // 如果用户点击 "取消"，返回 0
+        return 0;
+      }
+    });
+  }
   else if (type === 99) {
     Swal.fire({
       text: msg,
