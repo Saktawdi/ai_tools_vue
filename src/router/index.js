@@ -42,6 +42,11 @@ const routes = [
     path:'/roleDisable',
     name:'roleDisable',
     component:()=>import("../views/disable/roleView.vue")
+  },
+  {
+    path:'/aipic',
+    name:'aipic',
+    component:()=>import("../views/AIPicView.vue")
   }
 ]
 

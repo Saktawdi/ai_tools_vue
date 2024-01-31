@@ -39,9 +39,10 @@
       <div class="love-section">
         <h2 class="section-title">用爱发电</h2>
         <p class="section-description">网站由@Sakta_wdi打造，努力用爱发电中...
-          <br>出于成本问题，目前可用机器人五个，意味着同时间只能有五个人问答
-          <br>未来视情况增设机器人</p>
+          <br>由于Pandora传奇项目的结束，现在AI用官方的接口
+          <br>请各位悠着点用</p>
         <span class="donation-description">如果您觉得好用的话，不妨请作者喝杯快乐水~~~让作者爆肝更新！</span>
+        <a href="https://afdian.net/a/saktawdi"><img width="200" src="https://pic1.afdiancdn.com/static/img/welcome/button-sponsorme.png" alt=""></a >
         <img src="../assets/donation.jpg" alt="Heart Icon" class="heart-icon">
       </div>
     </div>

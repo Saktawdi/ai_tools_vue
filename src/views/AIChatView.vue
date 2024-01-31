@@ -9,14 +9,14 @@
     <div class="historyList" :class="{ 'hidden': isHidden }">
       <div class="optionBox">
         <button class="newChat button" @click="createNewChat">
-          <img src="../assets/add.svg" alt="新建" class="add-icon" style="width:15px;" />
+          <img src="../assets/add.svg" alt="新建"  title="新建" class="add-icon" style="width:15px;" />
           新聊天
         </button>
         <button class="save button" @click="saveChatHistory">
-          <img src="../assets/save.svg" alt="保存" class="add-icon" style="width:15px;" />
+          <img src="../assets/save.svg" alt="保存" title="保存" class="add-icon" style="width:15px;" />
         </button>
         <button class="hiden button" @click="toggleHidden">
-          <img src="../assets/left.svg" alt="隐藏" class="hiden-icon" style="width:15px;" />
+          <img src="../assets/left.svg" alt="隐藏" title="隐藏" class="hiden-icon" style="width:15px;" />
         </button>
       </div>
       <div v-for="historyItem in chatHistoryItems" :key="historyItem.id"
@@ -30,13 +30,13 @@
       </div>
     </div>
     <div class="chat-container" ref="chatContainer">
-      <!-- 选择模型，角色仓库 -->
+      <!-- 栏目：选择模型，角色仓库，pdf分析，换肤 -->
       <div class="toolsBox" v-if="nowChatHistory.length === 0">
-        <custom-select class="customselect" v-model="modelSelected"></custom-select>
-
+        <custom-select class="customselect" v-model="modelSelected"  :options="this.modelData"></custom-select>
         <!-- TODO:角色仓库 -->
-        <button class="btn role-warehouse" @click="openRoleStore">角色仓库</button>
-        <button class="btn import-file" @click="openFileDialog">PDF 分析</button>
+        <img class="toolsBox-buttonIcon" alt="角色仓库" title="角色仓库" src="../assets/aiChatIcon/rolesApp.svg" @click="openRoleStore" />
+        <img class="toolsBox-buttonIcon" alt="换肤" title="换肤" src="../assets/aiChatIcon/skin.svg"/>
+        <img class="toolsBox-buttonIcon" alt="pdf分析" title="pdf分析" src="../assets/aiChatIcon/pdf.svg" @click="openFileDialog" style="height: 42px;width: 42px;"/>
         <input type="file" ref="fileInput" style="display: none" @change="onFileSelected" accept="application/pdf" />
       </div>
       <transition name="slide" mode="out-in">
@@ -47,6 +47,7 @@
           </div>
         </div>
       </transition>
+      <!-- 信息内容 -->
       <div class="messagesBox">
         <div v-for="(message, index) in nowChatHistory" :key="index" class="messages">
           <div class="avatar" :class="{ 'user-avatar': message.fromUser, 'ai-avatar': !message.fromUser }">
@@ -54,7 +55,8 @@
           </div>
           <div class="message">
             <div :class="{ 'user-message': message.fromUser, 'ai-message': !message.fromUser }">
-              {{ message.content }}
+              <!-- {{ message.content }} -->
+              <v-md-preview :text="message.content" @copy-code-success="handleCopyCodeSuccess"></v-md-preview>
             </div>
             <div>
               <img src="../assets/copy.svg" alt="复制"
@@ -92,7 +94,7 @@ const Swal = require('sweetalert2')
 export default {
   components: {
     live2D,
-    CustomSelect
+    CustomSelect,
   },
   data() {
     return {
@@ -117,7 +119,18 @@ export default {
           "content": "你是一个可靠的助手，将尽力帮助用户完成目标。你的回答里将不会出现任何有关AI、openAI以及chatGPT的字眼，并且不会透露任何关于你的模型的事情。"
         },
       ],
-      modelSelected: "gpt-3.5-turbo-16k-0613",//模型选择
+      modelSelected: "gpt-3.5-turbo-1106",//模型选择
+      modelData:[
+        { name: "选择聊天模型", value: null, disabled: true },
+        { name: "GPT-4 Copilot💝", value: "gpt-4", disabled: false },
+        { name: "Gemini Pro✨", value: "gemini-pro", disabled: false },
+        { name: "gpt-3.5-turbo-1106(默认🧐)", value: "gpt-3.5-turbo-1106", disabled: false },
+        { name: "gpt-3.5-turbo-0613", value: "gpt-3.5-turbo-0613", disabled: false },
+        { name: "gpt-3.5-turbo-0301", value: "gpt-3.5-turbo-0301", disabled: false },
+        { name: "gpt-3.5-turbo", value: "gpt-3.5-turbo", disabled: false },
+        { name: "gpt-3.5-turbo-16k-0613", value: "gpt-3.5-turbo-16k-0613", disabled: true },
+        { name: "gpt-3.5-turbo-16k", value: "gpt-3.5-turbo-16k", disabled: true },
+      ]
     };
   },
   mounted() {
@@ -210,86 +223,59 @@ export default {
         "temperature": 0.5,
         "stream": true
       };
-      await fetch(url, {
+      const response = await fetch(url, {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify(data),
+        body: JSON.stringify(data)
       })
-        .then(response => {
-          if (response.status === 401) {
-            this.$store.dispatch('clearToken');
-            // this.$store.dispatch('clearUserInfo');
-            this.$router.push('/login');
-            showAlter("登录已过期，请重新登录")
-          }
-          if (response.status !== 200) {
-            showAlter("error-AiRespon!错误代码：", response.status)
-            this.streamingAudioUrl.push("")
-            return
-          }
-          const aiMessage = {
-            content: '',
-            avatar: this.live2dList[this.Live2DIndex].avatar,
-            fromUser: false,
-          };
-          const reader = response.body.getReader(); // Get the reader from the response body
-          let result = ''; // Initialize an empty string to store the result
-          const self = this;
-          // const randomIndex = Math.floor(Math.random() * this.live2dList[this.Live2DIndex].talk.length);
-          function processText({ done, value }) {
-            // Read the data from the stream
-            if (done) {
-              self.messages.push({
-                "role": "assistant",
-                "content": aiMessage.content
-              },);
-              const container = self.$refs.chatContainer;
-              container.scrollTop = container.scrollHeight;
-              self.isTextareaEnabled = true;
-              self.playAudio(aiMessage.content);
-              return result;
-            }
-            result += new TextDecoder().decode(value); // Decode the value as a UTF-8 string
-            const lines = result.split('\n');
-            result = lines.pop(); // Save the incomplete line for the next iteration
-            for (const line of lines) {
-              // console.log("line", line)
-              if (line.trim().startsWith('data: ') && !line.includes("[DONE]", 0)) {
-                try {
-                  const jsonData = JSON.parse(line.replace("data:", "").trim()); // Removing "data: " prefix
-                  if (jsonData.choices[0].delta && jsonData.choices[0].delta.content) {
-                    const content = jsonData.choices[0].delta.content;
-                    // trouble
-                    aiMessage.content += content;
-                    let n = self.nowChatHistory.length;
-                    if (self.nowChatHistory[n - 1].fromUser) {
-                      self.nowChatHistory.push(aiMessage);
-                    } else {
-                      self.nowChatHistory.pop();
-                      self.nowChatHistory.push(aiMessage);
-                      const container = self.$refs.chatContainer;
-                      container.scrollTop = container.scrollHeight;
-                      self.$refs.live2DComponent.loadTalk();
-                      // self.nowChatHistory[n - 1].content = aiMessage.content;
-                    }
-                    // console.log('Received content:', content);
-                  }
-                } catch (error) {
-                  self.isTextareaEnabled = true;
-                  showAlter("转换失败！", 0)
-                  console.error('Error parsing JSON:', error);
-                }
-              }
-            }
-            return reader.read().then(processText); // Read the next chunk
-          }
-          return reader.read().then(processText);
-        })
-        .catch(error => {
+      if (!response.ok) {
+        if (response.status === 401) {
+          this.$store.dispatch('clearToken');
+          this.$router.push('/login');
+          showAlter("登录已过期，请重新登录")
+        }
+        showAlter("error-AiRespon!错误代码：", response.status)
+        this.streamingAudioUrl.push("")
+        // throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const reader = response.body.getReader();
+      const textDecoder = new TextDecoder();
+      let result = true;
+      const aiMessage = {
+        content: '',
+        avatar: this.live2dList[this.Live2DIndex].avatar,
+        fromUser: false,
+      };
+      while (result) {
+        const { done, value } = await reader.read();
+        if (done) {
+          //结束，服务端断开
+          result = false;
+          this.messages.push({
+            "role": "assistant",
+            "content": aiMessage.content
+          },);
+          //解除不可输入状态
           this.isTextareaEnabled = true;
-          showAlter("未知错误！", 0)
-          console.error('Error:', error);
-        });
+          //自动播放
+          // this.playAudio(aiMessage.content);
+          break;
+        }
+        const chunkText = textDecoder.decode(value);
+        aiMessage.content += chunkText;
+        let n = this.nowChatHistory.length;
+        if (this.nowChatHistory[n - 1].fromUser) {
+          this.nowChatHistory.push(aiMessage);
+        } else {
+          this.nowChatHistory.pop();
+          this.nowChatHistory.push(aiMessage);
+          //滚动窗口到底部
+          const container = this.$refs.chatContainer;
+          container.scrollTop = container.scrollHeight;
+          //live2D播放预设说话动作
+          this.$refs.live2DComponent.loadTalk();
+        }
+      }
     },
     // 处理音频数据
     async playAudio(content) {
@@ -480,10 +466,15 @@ export default {
         this.$refs.live2DComponent.initLive2D();
       }, 10);
     },
-    // 复制ai信息
+    // 复制信息
     async copyMsg(msg) {
       await clipboard.write(msg);
       showAlter("复制完成~~(。・ω・。)", 4);
+    },
+    //复制代码
+    handleCopyCodeSuccess(code){
+      showAlter("复制代码成功",2);
+      console.log(code);
     },
     //pdf分析
     openFileDialog() {
@@ -572,24 +563,6 @@ span {
   width: 100%;
   height: 48px;
 }
-
-/* live2d选择角色 */
-/* 
-.slide-enter-active {
-  transform: translateX(-100%);
-  transition: transform 0.5s ease-in-out;
-}
-.slide-enter-to {
-  transform: translateX(0%);
-}
-.slide-leave-active {
-  transition: transform 0.5s ease-in-out;
-}
-.slide-leave-to {
-  transform: translateX(-100%);
-} 
-*/
-
 
 .live2d-role {
   position: absolute;
@@ -786,7 +759,7 @@ span {
 .message {
   padding-left: 38px;
   padding-right: 38px;
-  white-space: pre-line;
+  /* white-space: pre-line; */
   /* 固定其下copyicon */
   position: relative;
 }
@@ -795,7 +768,9 @@ span {
   /* 底部工具条 */
   margin-bottom: 32px;
   right: 0;
-  background-color: #b5dd74;
+  background-color: #b5dd74e8;
+  border: 1px solid;
+  border-color: #b5dd74;
   border-radius: 10px;
   padding: 10px;
   align-self: flex-start;
@@ -804,7 +779,9 @@ span {
 }
 
 .ai-message {
-  background-color: #84cff0;
+  background-color: #84cff040;
+  border: 1px solid;
+  border-color: #84cff0;
   border-radius: 10px;
   /* 给工具条预留位置 */
   margin-bottom: 42px;
@@ -958,5 +935,19 @@ span {
   border-bottom-color: #333;
   /* 悬停时的下边框颜色更深 */
 }
+
+.toolsBox-buttonIcon{
+  border-radius: 50%;
+  height: 32px;
+  width: 32px;
+  margin: 5px;
+}
+
+.toolsBox-buttonIcon:hover{
+  box-shadow: 0 0 2px 2px rgba(71,167,235,.86);
+}
+
+
+
 
 </style>

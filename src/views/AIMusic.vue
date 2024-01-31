@@ -150,7 +150,6 @@ export default {
             // const alterInstance = showAlter("请耐心等待，正在全速前进地生成音乐！", 5)
             this.starting = true;
             this.completed = false;
-            // Step 1: Call the first API to convert user input to AI prompt
             const response1 = await fetch(`${requestConfig.baseURL1}/v1/chat/pri/send`, {
                 method: "POST",
                 headers: {
@@ -158,7 +157,7 @@ export default {
                     "token": this.getToken
                 },
                 body: JSON.stringify({
-                    model: "gpt-3.5-turbo-16k",
+                    model: "gpt-3.5-turbo",
                     messages: [{
                         "role": "system",
                         "content": "。你是一个可靠的助手，将尽力帮助用户完成目标。你现在需要将用户的词语转变为英语，可以适当的进行定语修饰和乐理方面上的润色"
@@ -184,7 +183,6 @@ export default {
             const aiResponse = data1.choices[0].message.content;
             const randomUUID = uuidv4();
 
-            // Step 2: Call the second API to generate music based on AI response
             var predictionId = "";
             try {
                 const response2 = await this.postPrompt(aiResponse, randomUUID);
@@ -200,23 +198,22 @@ export default {
             if (!predictionId) {
                 return;
             }
-            // Step 3: Poll the third API to check if music generation is completed
             this.startPolling(predictionId);
         },
         async postPrompt(aiContent, randomUUID) {
             const requestBody = {
                 version: "b05b1dff1d8c6dc63d14b0cdb42135378dcb87f6373b0d3d341ede46e59e2b38",
                 input: {
-                    model_version: "stereo-large",
+                    model_version: "stereo-melody-large",
                     prompt: aiContent,
                     duration:  this.timeInSeconds
                 }
             };
-            const output = await fetch('/v1/predictions', {
+            console.log(randomUUID)
+            const output = await fetch('https://api.replicate.com/v1/predictions', {
                 method: 'POST',
                 headers: {
-                    "X-Authorization": "Token " + randomUUID,
-                    "Authorization": "Token r8_EyxOUddJe66G3vFdE005oHyDIQYX2Mo29bbVw",
+                    "Authorization": `Token ${process.env.VUE_APP_REPLICATETOKEN}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(requestBody)
@@ -224,11 +221,11 @@ export default {
             return output;
         },
         async checkStatus(predictionId) {
-            const response = await fetch(`/v1/predictions/${predictionId}`,
+            const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`,
             {
                 method:'GET',
                 headers: {
-                    "Authorization": "Token r8_EyxOUddJe66G3vFdE005oHyDIQYX2Mo29bbVw"
+                    "Authorization": `Token ${process.env.VUE_APP_REPLICATETOKEN}`
                 }
             });
             const data = await response.json();

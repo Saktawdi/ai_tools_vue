@@ -20,24 +20,28 @@ export default {
     modelValue: {
       type: String,
       default: ''
-    }
+    },
+    options: {
+      type: Array,
+      required: true,
+    },
   },
   data() {
     return {
       isOpen: false,
-      modelSelected: "gpt-3.5-turbo-16k-0613",
+      modelSelected: "gpt-3.5-turbo-1106",
       selectedOptionName: "",
-      options: [
-        { name: "选择聊天模型", value: null, disabled: true },
-        { name: "gpt-3.5-turbo-16k-0613", value: "gpt-3.5-turbo-16k-0613", disabled: false },
-        { name: "gpt-3.5-turbo-16k", value: "gpt-3.5-turbo-16k", disabled: false },
-        { name: "gpt-3.5-turbo-1106", value: "gpt-3.5-turbo-1106", disabled: false },
-        { name: "gpt-3.5-turbo-0613", value: "gpt-3.5-turbo-0613", disabled: false },
-        { name: "gpt-3.5-turbo-0301", value: "gpt-3.5-turbo-0301", disabled: false },
-        { name: "gpt-3.5-turbo", value: "gpt-3.5-turbo", disabled: false },
-        { name: "GPT-4.0(暂时关闭)", value: "Gemini Pro", disabled: true },
-        { name: "Gemini Pro(内测)", value: "Gemini Pro", disabled: true }
-      ],
+      // options: [
+      //   { name: "选择聊天模型", value: null, disabled: true },
+      //   { name: "gpt-3.5-turbo-16k-0613", value: "gpt-3.5-turbo-16k-0613", disabled: false },
+      //   { name: "gpt-3.5-turbo-16k", value: "gpt-3.5-turbo-16k", disabled: false },
+      //   { name: "gpt-3.5-turbo-1106", value: "gpt-3.5-turbo-1106", disabled: false },
+      //   { name: "gpt-3.5-turbo-0613", value: "gpt-3.5-turbo-0613", disabled: false },
+      //   { name: "gpt-3.5-turbo-0301", value: "gpt-3.5-turbo-0301", disabled: false },
+      //   { name: "gpt-3.5-turbo", value: "gpt-3.5-turbo", disabled: false },
+      //   { name: "GPT-4(暂时关闭)", value: "GPT-4", disabled: true },
+      //   { name: "Gemini Pro(内测)", value: "Gemini Pro", disabled: true }
+      // ],
     };
   },
   mounted() {

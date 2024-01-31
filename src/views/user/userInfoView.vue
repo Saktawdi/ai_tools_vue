@@ -42,12 +42,14 @@
           <!-- 公告通知内容 -->
           <div class="notice-container">
             <!-- <h2 class="notice-heading">公告通知</h2> -->
+            <h2 v-if="notice.length === 0">没有公告通知~</h2>
             <div v-for="item in notice" :key="item.noticeId" class="notice-item">
-              <!-- <div class="notice-type">{{ getNoticeTypeLabel(item.noticeType) }}</div> -->
               <div :class="['notice-type', getNoticeTypeClass(item.noticeType)]">{{ getNoticeTypeLabel(item.noticeType) }}
               </div>
               <h3 class="notice-title">{{ item.noticeTitle }}</h3>
-              <p class="notice-content">{{ item.noticeContent }}</p>
+              <p class="notice-content">
+                <v-md-preview :text="item.noticeContent"></v-md-preview>
+              </p>
               <p class="notice-time">{{ formatTime(item.createTime) }}</p>
             </div>
           </div>
@@ -59,13 +61,20 @@
               <h2 class="feedback-heading">历史反馈</h2>
               <button class="feedback-postBtn" @click="postFeedback()">提交反馈</button>
             </div>
+            <div v-if="feedbackData.length === 0">
+              <h2>啊哦，还没有任何反馈内容呢</h2>
+              <h3>您可以在这里反馈->bug/建议哦</h3>
+            </div>
             <div v-for="item in feedbackData" :key="item.feedbackId" class="feedback-item"
               @click="activateFeedBackItem(item)">
               <div :class="['feedback-status', getFeedbackStatusClass(item.status)]">{{
                 getFeedbackStatusLabel(item.status)
               }}</div>
               <div :class="['feedback-type', getFeedbackTypeClass(item.type)]">{{ getFeedbackTypeLabel(item.type) }}</div>
-              <p class="feedback-content">{{ item.content }}</p>
+              <p class="feedback-content">
+                {{ item.content }}
+                <!-- <v-md-preview :text="item.content"></v-md-preview> -->
+              </p>
               <div v-if="item.filePath" class="feedback-file">
                 <img :src="baseURL + item.filePath" alt="Feedback File">
               </div>
@@ -181,7 +190,7 @@ export default {
       try {
         const result = await getNoticeListApi(this.getToken)
         if (result.data.code === 0) {
-          this.notice = result.data.data
+          this.notice = this.sortedNotice(result.data.data);
         } else {
           showAlter("获取通知失败!", 0);
           console.log(result.data.msg)
@@ -189,6 +198,17 @@ export default {
       } catch (error) {
         console.log(error)
       }
+    },
+    //排序通知信息
+    sortedNotice(data) {
+      // 首先筛选出 noticeType 等于 1 的项，然后按 updateTime 进行降序排序
+      const sortedByType =data.filter(item => item.noticeType === 1);
+      sortedByType.sort((a, b) => new Date(b.updateTime) - new Date(a.updateTime));
+      // 筛选出 noticeType 不等于 1 的项，并按 updateTime 进行降序排序
+      const sortedByTime = data.filter(item => item.noticeType !== 1);
+      sortedByTime.sort((a, b) => new Date(b.updateTime) - new Date(a.updateTime));
+      // 将两个排序后的数组拼接在一起
+      return sortedByType.concat(sortedByTime);
     },
     //获取反馈列表
     async getFeedBackList() {

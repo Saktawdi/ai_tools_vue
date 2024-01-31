@@ -2,9 +2,10 @@ import axios from "axios";
 import { showAlter } from "./showAlter";
 import router from '@/router'
 import store from "@/store";
-
+//https://localhost:7868
+//https://api.sakta.top
 export const requestConfig = {
-    baseURL1: "https://api.sakta.top",
+    baseURL1: "http://localhost:7868",
     baseURL2: "",
     timeout: 60000
 }

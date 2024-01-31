@@ -5,6 +5,7 @@
     <router-link :to="{ path: '/aichat' }" :class="{ active: isActive('/aichat') }">角色对话</router-link>
     <router-link :to="{ path: '/mdppt' }" :class="{ active: isActive('/mdppt') }">PPT生成</router-link>
     <router-link :to="{ path: '/aimusic' }" :class="{ active: isActive('/aimusic') }">音乐生成</router-link>
+    <!-- <router-link :to="{ path: '/aipic' }" :class="{ active: isActive('/aipic') }">图画生成</router-link> -->
     <div class="profile-container" @mouseover="showMenu" @mouseleave="hideMenu">
       <img :src='getUserData.avatar' alt="Avatar" class="homeAvatar" />
       <div v-if="isMenuVisible" class="menu">

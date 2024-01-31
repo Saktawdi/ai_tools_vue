@@ -104,6 +104,8 @@ $$
     }
     this.renderMarpitHtml(); // 在组件挂载后执行渲染操作
     if (this.currentPageHtml === '') this.currentPageHtml = this.renderedHtml;
+
+    showAlter("此功能已经久远未更，如有更新需求：请到仓库issue或者反馈提交");
   },
   computed: {
     totalNumPages() {
