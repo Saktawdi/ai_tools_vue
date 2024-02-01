@@ -1,57 +1,61 @@
 <template>
     <div class="live2DBox">
-    <canvas id="canvas_view"></canvas>
+        <canvas id="canvas_view"></canvas>
     </div>
 </template>
 
 <script>
-import { init,playIdle,playTalk } from './index'
+import { init, playIdle, playTalk } from './index'
 export default {
     props: {
         url: String,
         height: String,
         width: String,
         scale: Number,
-        x:Number,
-        ideaAc:String,
+        x: Number,
+        ideaAc: String,
         talkAc: {
             type: Array,
             default: () => []
         }
     },
-    data(){
-        return{
-            model:null
+    data() {
+        return {
+            model: null
         }
     },
-    mounted(){
+    mounted() {
         this.initLive2D();
     },
-    methods:{
+    methods: {
         async initLive2D() {
-           var height = this.height * (window.innerHeight / 1001);
-           var width = this.width * (window.innerWidth / 1872);
-           var scale = this.scale * (window.innerWidth / 1872);
-           var x = this.x * (window.innerWidth / 1872);
-           this.model = await init(this.url, height, width, scale,x, false);
-           this.model.internalModel.motionManager.state.reset();
-           this.loadIdle();
+            try {
+                var height = this.height * (window.innerHeight / 1001);
+                var width = this.width * (window.innerWidth / 1872);
+                var scale = this.scale * (window.innerWidth / 1872);
+                var x = this.x * (window.innerWidth / 1872);
+                this.model = await init(this.url, height, width, scale, x, false);
+                this.model.internalModel.motionManager.state.reset();
+                this.loadIdle();
+            } catch (error) {
+                console.log("live2D初始化错误：", error);
+            }
         },
-        loadIdle(){
-            playIdle(this.model,this.ideaAc);
+        loadIdle() {
+            playIdle(this.model, this.ideaAc);
         },
-        loadTalk(){
+        loadTalk() {
             const randomIndex = Math.floor(Math.random() * this.talkAc.length);
             const randomValue = this.talkAc[randomIndex];
-            playTalk(this.model,randomValue);
+            playTalk(this.model, randomValue);
         }
     }
 }
 </script>
 
 <style>
-.live2DBox{
-    position:absolute;
+.live2DBox {
+    position: absolute;
     bottom: 0px;
     left: 20%;
     z-index: 9999;

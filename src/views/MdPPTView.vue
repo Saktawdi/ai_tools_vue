@@ -161,7 +161,7 @@ $$
       每当你要分页的时候，请单独一行使用‘---’符号，一页不要塞进太多内容,多分页；
       ppt结构大概是标题大纲-目录-当前标题-内容这样；
       如果过程中你想发送一张照片时，请同样使用 Markdown ,并且 不要有反斜线, 不要用代码块。使用 Unsplash API (https://source.unsplash.com/1280x720/? < PUT YOUR QUERY HERE >)。
-      最后，请记住你将要制作的ppt的主题是《${this.userQuestion}》,文案丰富点，最少3000字,18页。`;
+      最后，请记住你将要制作的ppt的主题是《${this.userQuestion}》,文案丰富点，立即开始回答：`;
       const swalInstance = showAlter("等待AI作答......", 5);
       this.markdown = "";
       //Todo:stream响应答复
@@ -171,7 +171,7 @@ $$
         'Content-Type': 'application/json'
       };
       const data = {
-        "model": "gpt-3.5-turbo-16k",
+        "model": "gemini-pro",
         "messages": [
           {
             "role": "system",
@@ -185,71 +185,35 @@ $$
         "temperature": 0.8,
         "stream": true
       };
-      await fetch(url, {
+      const response =await fetch(url, {
         method: 'POST',
         headers: headers,
         body: JSON.stringify(data),
       })
-        .then(response => {
-          if (response.status === 401) {
-            showAlter("登录已过期，请重新登录！")
-            this.$store.dispatch('clearToken')
-            this.$router.push('/login')
-          }
-          if(response.status === 500){
-            showAlter("AI服务器异常，请稍后再试")
-          }
-          const reader = response.body.getReader(); // Get the reader from the response body
-          let result = ''; // Initialize an empty string to store the result
-
-          // const intervalId = setInterval(() => {
-          //   // Update the markdown variable with the text so far
-          //   this.markdown = result;
-          // }, 100);
-          const self = this; // Save the Vue component context
-          function processText({ done, value }) {
-            // Read the data from the stream
-            if (done) {
-              // If the stream is done, clear the interval and return the result
-              swalInstance.close();
-              // clearInterval(intervalId);
-              showAlter("生成成功!",2)
-              self.renderMarpitHtml();
-              console.log('Stream ended');
-              return result;
-            }
-            result += new TextDecoder().decode(value); // Decode the value as a UTF-8 string
-            const lines = result.split('\n');
-            result = lines.pop(); // Save the incomplete line for the next iteration
-            for (const line of lines) {
-              // console.log("line",line)
-              if (line.trim().startsWith('data: ') && !line.includes("[DONE]",0)) {
-                try {
-                  const jsonData = JSON.parse(line.replace("data:","").trim()); // Removing "data: " prefix
-                  if (jsonData.choices[0].delta && jsonData.choices[0].delta.content) {
-                    const content = jsonData.choices[0].delta.content;
-                    // trouble
-                    self.markdown += content;
-                    // console.log('Received content:', content);
-                    
-                  }
-                } catch (error) {
-                  swalInstance.close();
-                  showAlter("转换失败！",0)
-                  console.error('Error parsing JSON:', error);
-                }
-              }
-            }
-
-            return reader.read().then(processText); // Read the next chunk
-          }
-
-          return reader.read().then(processText);
-        })
-        .catch(error => {
+      if (!response.ok) {
+        if (response.status === 401) {
+          this.$store.dispatch('clearToken');
+          this.$router.push('/login');
+          showAlter("登录已过期，请重新登录")
+        }
+        showAlter("error-AiRespon!错误代码：", response.status)
+      }
+      const reader = response.body.getReader();
+      const textDecoder = new TextDecoder();
+      let result = true;
+      while (result) {
+        const { done, value } = await reader.read();
+        if (done) {
+          //结束，服务端断开
+          result = false;
           swalInstance.close();
-          console.error('Error:', error);
-        });
+          showAlter("生成成功!",2)
+          this.renderMarpitHtml();
+          break;
+        }
+        const chunkText = textDecoder.decode(value);
+        this.markdown += chunkText;
+      }
     },
     // 幻灯片
     prevPage() {

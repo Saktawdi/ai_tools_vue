@@ -157,7 +157,7 @@ export default {
                     "token": this.getToken
                 },
                 body: JSON.stringify({
-                    model: "gpt-3.5-turbo",
+                    model: "gpt-3.5-turbo-1106",
                     messages: [{
                         "role": "system",
                         "content": "。你是一个可靠的助手，将尽力帮助用户完成目标。你现在需要将用户的词语转变为英语，可以适当的进行定语修饰和乐理方面上的润色"

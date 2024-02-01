@@ -17,44 +17,26 @@
 - AI生成ppt
 - AI生成音乐
 
-##### 当前版本：![Static Badge](https://img.shields.io/badge/0.4.1-green)
+##### 当前版本：![Static Badge](https://img.shields.io/badge/0.5.2-green)
 
 [demo演示地址]: https://ai.sakta.top/
-
-> [!TIP]
->
-> **0.4.1**
->
-> 1.注册-新增初始头像
-
-
-
-> [!NOTE]
->
-> 0.4.0
->
-> 1.新增模型选择
->
-> 2.新增pdf文件分析
->
-> 3.新增历史记录重命名
->
-> 4.优化历史记录保存体验,角色选择逻辑优化
 
 ##### 未来将更新的功能：
 
 - AI聊天工具
-  - [x] 导入文档快速总结
-  - [x] 模型选择
-    - [ ] 谷歌Gemini Pro
-    - [ ] 百度，讯飞
+  - [x] ~~导入文档快速总结~~
+  - [x] ~~角色仓库+自定义提示词~~
+
+  - 模型选择
+    - [x] ~~谷歌Gemini Pro~~
+    - [ ] 多模态模型适配
+    - [ ] 百度，讯飞等
+
 - AI生成音乐
   - [ ] 音乐文件续写（生成）
-
 - AI生成ppt
   - [ ] ppt样式广场
   - [ ] 导出可编辑pptx功能
-
 - 新增
   - [ ] AI绘画
   - [ ] AI识图
@@ -79,11 +61,15 @@ npm run serve
 
 以下是特殊文件的介绍：
 
+> [!TIP]
+>
+> role_id查找请前往：https://huggingface.co/spaces/Artrajz/vits-simple-api
+>
+> role_url可以这里找：https://guansss.github.io/live2d-viewer-web/
+
 > src/api/baseStyleMD.js
 >
 > 用于改变生成的ppt样式，归属md生成ppt功能
-
-
 
 > src/api/live2DData.js
 >
@@ -113,17 +99,13 @@ npm run serve
 >
 >   role_name:角色名称,
 >
->   role_info:初始属性词
+>   role_info:初始提示词
 >
 > }
-
-
 
 > src/api/musicPromptData.js
 >
 > 用于生成音乐时，动态加载的提示语
-
-
 
 > src\utils\calcTextareaHeight.js
 >
@@ -144,24 +126,16 @@ npm run serve
 # 界面截图
 
 > [!IMPORTANT] 
->
-> 更新演示[无加速]
 
-![hLYDR.gif](https://i0.imgs.ovh/2024/01/13/hLYDR.gif)
+![image-20240201133547457](C:\Users\17428\AppData\Roaming\Typora\typora-user-images\image-20240201133547457.png)
 
 > 首页
 
 <img src="https://cdn.jsdelivr.net/gh/Saktawdi/my-images@main/img/20230907214818.png"/>
 
-> 权限页面
-
-![](https://cdn.jsdelivr.net/gh/Saktawdi/my-images@main/img/20230907214953.png)
-
 > AI聊天界面
 
-![](https://cdn.jsdelivr.net/gh/Saktawdi/my-images@main/img/20230907215156.png)
-
-![](https://cdn.jsdelivr.net/gh/Saktawdi/my-images@main/img/20230907215322.png)
+![1706765686775.png](https://www.freeimg.cn/i/2024/02/01/65bb2d78e6753.png)
 
 > md生成ppt功能
 
@@ -183,21 +157,16 @@ npm run serve
 
 不分前后：
 
+<div style="display:flex;flex-wrap: wrap;justify-content: space-around;">
 <img alt="Static Badge" src="https://img.shields.io/badge/gitbrent-PptxGenJS-green?link=https%3A%2F%2Fgithub.com%2Fgitbrent%2FPptxGenJS%2F">
-
 <img alt="Static Badge" src="https://img.shields.io/badge/katspaugh-wavesurfer.js-green?link=https%3A%2F%2Fgithub.com%2Fkatspaugh%2Fwavesurfer.js">
-
 <img alt="Static Badge" src="https://img.shields.io/badge/sweetalert2-sweetalert2-green?link=https%3A%2F%2Fgithub.com%2Fsweetalert2%2Fsweetalert2">
-
 <img alt="Static Badge" src="https://img.shields.io/badge/niklasvh-html2canvas-green?link=https%3A%2F%2Fgithub.com%2Fniklasvh%2Fhtml2canvas">
-
 <img alt="Static Badge" src="https://img.shields.io/badge/marp--team-marp--core-green?link=https%3A%2F%2Fgithub.com%2Fmarp-team%2Fmarp-core">
-
 <img alt="Static Badge" src="https://img.shields.io/badge/guansss-pixi--live2d--display-green?link=https%3A%2F%2Fgithub.com%2Fguansss%2Fpixi-live2d-display">
-
 <img alt="Static Badge" src="https://img.shields.io/badge/Artrajz-vits--simple--api-green">
-
 <img alt="Static Badge" src="https://img.shields.io/badge/facebookresearch-audiocraft-green?link=https%3A%2F%2Fgithub.com%2Fguansss%2Fpixi-live2d-display">
+</div>
 
 # 开源协议
 
