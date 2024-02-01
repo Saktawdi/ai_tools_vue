@@ -3,8 +3,8 @@
     <live2D ref="live2DComponent" v-if="live2dList[Live2DIndex].role_url" :url="live2dList[Live2DIndex].role_url" :height="live2dList[Live2DIndex].height"
       :width="live2dList[Live2DIndex].width" :scale="live2dList[Live2DIndex].scale" :x="live2dList[Live2DIndex].x"
       :ideaAc="live2dList[Live2DIndex].idle" :talkAc="live2dList[Live2DIndex].talk"></live2D>
-    <RoleStoreCard :is-open="isRoleStoreOpen" @close="handleRoleStoreClose" :live2dList="live2dList"
-      @update:live2dList="handleLive2dListUpdate">
+    <RoleStoreCard :is-open="isRoleStoreOpen" :chooseIndex="Live2DIndex" @close="handleRoleStoreClose" :live2dList="live2dList"
+      @update:live2dList="handleLive2dListUpdate" @update:chooseIndex = "handleLive2dIndexUpdate">
     </RoleStoreCard>
     <button class="showList button" v-if="isHidden" @click="toggleHidden" style="width:48px;">
       <img src="../assets/right.svg" alt="显性" class="show-icon" style="width:15px;" />
@@ -36,9 +36,9 @@
       <!-- 栏目：选择模型，角色仓库，pdf分析，换肤 -->
       <div class="toolsBox" v-if="nowChatHistory.length === 0">
         <custom-select class="customselect" v-model="modelSelected" :options="this.modelData"></custom-select>
-        <!-- TODO:角色仓库 -->
         <img class="toolsBox-buttonIcon" alt="角色仓库" title="角色仓库" src="../assets/aiChatIcon/rolesApp.svg"
           @click="openRoleStore" />
+        <!-- TODO:换肤 -->
         <img class="toolsBox-buttonIcon" alt="换肤" title="换肤" src="../assets/aiChatIcon/skin.svg" @click="openSkinStore" />
         <img class="toolsBox-buttonIcon" alt="pdf分析" title="pdf分析" src="../assets/aiChatIcon/pdf.svg"
           @click="openFileDialog" style="height: 42px;width: 42px;" />
@@ -66,7 +66,7 @@
               <v-md-preview :text="message.content" @copy-code-success="handleCopyCodeSuccess"></v-md-preview>
             </div>
             <div>
-              <img src="../assets/copy.svg" alt="复制"
+              <img src="../assets/copy.svg" alt="复制" title="复制"
                 :class="{ 'icon-copy-user': message.fromUser, 'icon-copy-ai': !message.fromUser }"
                 @click="copyMsg(message.content)" />
             </div>
@@ -109,7 +109,7 @@ export default {
   data() {
     return {
       live2dList: live2dList,
-      Live2DIndex: 0,
+      Live2DIndex: 1,
       defaultAvatar: defaultAvatar,//滚动条加载失败默认图标
       streamingAudioUrl: [], // 存储流式音频 URL
       audioReady: false,
@@ -133,6 +133,7 @@ export default {
       modelSelected: "gpt-3.5-turbo-1106",//模型选择
       modelData: [
         { name: "选择聊天模型", value: null, disabled: true },
+        { name: "DeepSeekChat(又强又快)💪", value: "deepseek-chat", disabled: false },
         { name: "GPT-4 Copilot💝", value: "gpt-4", disabled: false },
         { name: "Gemini Pro✨", value: "gemini-pro", disabled: false },
         { name: "gpt-3.5-turbo-1106(默认🧐)", value: "gpt-3.5-turbo-1106", disabled: false },
@@ -222,6 +223,11 @@ export default {
     handleLive2dListUpdate(newList) {
       this.live2dList = newList;
     },
+    handleLive2dIndexUpdate(id){
+      const index = this.live2dList.findIndex((item)=>item.id === id);
+      this.updateLive2DIndex(index);
+      showAlter("更换角色成功",2);
+    },
     //发送用户信息
     async sendMessage() {
       if (this.userInput === "") {
@@ -299,6 +305,11 @@ export default {
           this.isTextareaEnabled = true;
           //自动播放
           // this.playAudio(aiMessage.content);
+          //保存
+          if(this.chatHistory.length < this.chatHistoryItems.length){
+            this.pushChatHistory();
+          }
+          this.saveChatHistory(1);
           break;
         }
         const chunkText = textDecoder.decode(value);
@@ -380,6 +391,7 @@ export default {
           this.chatHistory.splice(chatHistoryIndex, 1);
         }
       }
+      this.saveChatHistory();
     },
     //重命名历史记录
     reNameHistoryItem(id) {
@@ -421,9 +433,9 @@ export default {
       //存储的长度   现有长度
       if (this.chatHistory.length < this.chatHistoryItems.length) {
         this.pushChatHistory();
-        this.saveChatHistory();
         const dialogInstance = showAlter("正在存储，请稍等", 5);
         setTimeout(() => {
+          this.saveChatHistory();
           dialogInstance.close();
         }, 200);
       }
@@ -460,14 +472,24 @@ export default {
         showAlter("直接按回车键发信息即可了哦~", 99);
         return;
       }
-      let itemTemp;
+      if(this.isTextareaEnabled === false){
+        showAlter("等待当前模型回复~", 4);
+        return;
+      }
+      //存储的长度   现有长度
+      if (this.chatHistory.length < this.chatHistoryItems.length) {
+        this.pushChatHistory();
+        const dialogInstance = showAlter("正在存储，请稍等", 5);
+        setTimeout(() => {
+          this.saveChatHistory();
+          dialogInstance.close();
+        }, 200);
+      }
       this.chatHistoryItems.forEach((item) => {
         if (item.isActive === true) {
-          itemTemp = item;
           item.isActive = false;
         }
       });
-      this.chatHistory.push({ id: itemTemp.id, item: itemTemp.name, data: this.nowChatHistory, audio: this.streamingAudioUrl });
       this.nowChatHistory = [];
       this.messages = [
         {
@@ -480,6 +502,7 @@ export default {
     //插入历史记录
     pushChatHistory() {
       const n = this.chatHistoryItems.length;
+      console.log("插入前：",this.chatHistory)
       if (n >= 1) {
         this.chatHistory.push({
           id: this.chatHistoryItems[n - 1].id,
@@ -488,11 +511,14 @@ export default {
           audio: this.streamingAudioUrl
         });
       }
+
     },
     //保存历史记录
-    saveChatHistory() {
+    saveChatHistory(type = 0) {
       localStorage.setItem('chatHistory', JSON.stringify(this.chatHistory));
-      showAlter("保存成功", 2);
+      if(type === 0){
+        showAlter("保存成功", 2);
+      }
     },
     //隐藏历史列表
     toggleHidden() {
@@ -501,15 +527,14 @@ export default {
     // 改变live2D角色
     updateLive2DIndex(index) {
       this.Live2DIndex = index;
-      if (this.live2dList[this.Live2DIndex].role_info != "") {
+      if (this.live2dList[this.Live2DIndex].role_info) {
         this.messages[0].content = this.live2dList[this.Live2DIndex].role_info;
       }
-      if (this.live2dList[this.Live2DIndex].role_url === "" || this.live2dList[this.Live2DIndex].role_url === undefined){
-        return;
+      if (this.live2dList[this.Live2DIndex].role_url) {
+        setTimeout(() => {
+          this.$refs.live2DComponent.initLive2D();
+        }, 10);
       }
-      setTimeout(() => {
-        this.$refs.live2DComponent.initLive2D();
-      }, 10);
     },
     // 复制信息
     async copyMsg(msg) {

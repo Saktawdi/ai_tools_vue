@@ -2,9 +2,10 @@
     <div v-if="isOpen" class="floating-card" :class="{ 'card-open': isOpen }">
         <div class="card-header">
             <div v-if="isDetails" class="header-title">
-                <img src="../../assets/icon/back.svg" class="header-icon" @click="cancelBack" />
+                <img src="../../assets/icon/back.svg" title="返回" class="header-icon" @click="cancelBack" />
                 <span>角色详情</span>
-                <img src="../../assets/icon/delete.svg" class="header-icon" @click="deleteRole" />
+                <img src="../../assets/icon/seleted.svg" title="选择" class="header-icon" @click="seleteRole" />
+                <img src="../../assets/icon/delete.svg" title="删除" class="header-icon" @click="deleteRole" />
             </div>
             <div v-else-if="isShowMarket" class="header-title">
                 <img src="../../assets/icon/back.svg" class="header-icon" @click="cancelBack" />
@@ -99,7 +100,9 @@
         </div>
         <!-- 默认页面 -->
         <div v-else class="card-container">
-            <div v-for="item in localLive2dList" :key="item.id" class="character-card" @click="showDetails(item)">
+            <div v-for="item in localLive2dList" :key="item.id" class="character-card" 
+            :class="{'chosen-character': item.id === localChooseIndex}" 
+            @click="showDetails(item)">
                 <img :src="item.avatar || defaultAvatar" @error="setDefaultAvatar" :alt="item.role_name"
                     class="character-avatar">
                 <h3 class="character-name">{{ item.role_name }}</h3>
@@ -130,6 +133,7 @@ export default {
     props: {
         isOpen: Boolean,
         live2dList: Array,
+        chooseIndex:Number
     },
     data() {
         return {
@@ -139,7 +143,8 @@ export default {
             isShowAdd: false,
             currentLive2dData: {},
             textareaHeight: "48px",
-            localLive2dList: this.live2dList
+            localLive2dList: this.live2dList,
+            localChooseIndex:this.chooseIndex,
         }
     },
     watch: {
@@ -160,6 +165,8 @@ export default {
                 console.error('Could not parse localLive2dList from localStorage', e);
             }
         }
+        const item = this.live2dList[this.localChooseIndex];
+        this.localChooseIndex = item.id;
     },
     methods: {
         autoExpandTextarea() {
@@ -201,6 +208,11 @@ export default {
             this.saveLocalStorage();
             this.$emit('update:live2dList', this.localLive2dList);
         },
+        seleteRole(){
+            this.localChooseIndex = this.currentLive2dData.id;
+            this.$emit('update:chooseIndex', this.localChooseIndex);
+            this.isDetails = false;
+        },
         deleteRole(){
             const index = this.localLive2dList.findIndex(item => item.id === this.currentLive2dData.id);
             if (index !== -1) {
@@ -214,6 +226,7 @@ export default {
             const parsed = JSON.stringify(this.localLive2dList);
             localStorage.setItem('localLive2dList', parsed);
         },
+
         //TODO:市场
         showMarket() {
             this.isShowMarket = true;
@@ -252,6 +265,11 @@ export default {
 
 .character-card:hover {
     box-shadow: 0 0 2px 2px rgba(71, 167, 235, .86);
+}
+
+/* 当前选择的 */
+.chosen-character {
+    box-shadow: 0 0 10px #00ff00; /* 发绿光的阴影效果 */
 }
 
 .character-avatar {
@@ -446,4 +464,6 @@ export default {
 .add-submit-btn:hover {
     background-color: #45a049;
 }
+
+
 </style>  

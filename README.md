@@ -17,7 +17,7 @@
 - AI生成ppt
 - AI生成音乐
 
-##### 当前版本：![Static Badge](https://img.shields.io/badge/0.5.2-green)
+##### 当前版本：![Static Badge](https://img.shields.io/badge/0.5.6-green)
 
 [demo演示地址]: https://ai.sakta.top/
 
@@ -125,9 +125,9 @@ npm run serve
 
 # 界面截图
 
-> [!IMPORTANT] 
+> [!IMPORTANT] 无加速
 
-![image-20240201133547457](C:\Users\17428\AppData\Roaming\Typora\typora-user-images\image-20240201133547457.png)
+![newmodel.gif](https://www.freeimg.cn/i/2024/02/01/65bbaf4a488fc.gif)
 
 > 首页
 
