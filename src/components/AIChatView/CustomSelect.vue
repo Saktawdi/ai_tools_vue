@@ -29,7 +29,7 @@ export default {
   data() {
     return {
       isOpen: false,
-      modelSelected: "gpt-3.5-turbo-1106",
+      modelSelected: "deepseek-chat",
       selectedOptionName: "",
       // options: [
       //   { name: "选择聊天模型", value: null, disabled: true },

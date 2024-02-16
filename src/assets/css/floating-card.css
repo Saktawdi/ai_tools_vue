@@ -65,6 +65,24 @@
   .card-button:active {
     background-color: #003380;
   }
+  .card-button-green {
+    background-color: #00cc66;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    outline: none;
+  }
+  .card-button-green:hover {
+    background-color: #00b359;
+  }
+  
+  .card-button-green:active {
+    background-color: #00994d;
+  }
   /* Add a little animation for card open/close */
 @keyframes cardOpen {
     from {

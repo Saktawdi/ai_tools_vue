@@ -3,6 +3,7 @@ import { showAlter } from "./showAlter";
 import router from '@/router'
 import store from "@/store";
 //https://api.sakta.top
+
 export const requestConfig = {
     baseURL1: "https://api.sakta.top",
     baseURL2: "",

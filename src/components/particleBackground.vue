@@ -5,7 +5,7 @@
 </template>
   
 <script>
-import { init,start } from "@/assets/particle/planet";
+import { init,start } from "@/assets/particle/cover.js";
 export default {
   data() {
     return {

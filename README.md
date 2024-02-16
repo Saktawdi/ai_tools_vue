@@ -17,7 +17,7 @@
 - AI生成ppt
 - AI生成音乐
 
-##### 当前版本：![Static Badge](https://img.shields.io/badge/0.5.6-green)
+##### 当前版本：![Static Badge](https://img.shields.io/badge/0.5.8-green)
 
 [demo演示地址]: https://ai.sakta.top/
 
@@ -135,7 +135,9 @@ npm run serve
 
 > AI聊天界面
 
-![1706765686775.png](https://www.freeimg.cn/i/2024/02/01/65bb2d78e6753.png)
+![1708054034751.jpg](https://www.freeimg.cn/i/2024/02/16/65ced61609ea1.jpg)
+
+![1708054178469.png](https://www.freeimg.cn/i/2024/02/16/65ced6a47f3cb.png)
 
 > md生成ppt功能
 

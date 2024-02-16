@@ -100,12 +100,14 @@ nav a.active {
 
 
 nav {
-  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
   height: 28px;
   background-image: linear-gradient(to right, #30cfd0 0%, #330867 100%);
   padding: 10px 0;
   text-align: center;
-  z-index: 999;
 }
 
 /* 小圆点样式 */

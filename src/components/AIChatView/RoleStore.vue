@@ -9,7 +9,7 @@
             </div>
             <div v-else-if="isShowMarket" class="header-title">
                 <img src="../../assets/icon/back.svg" class="header-icon" @click="cancelBack" />
-                <span>角色市场</span>
+                <span>角色广场</span>
             </div>
             <div v-else-if="isShowAdd" class="header-title">
                 <img src="../../assets/icon/back.svg" class="header-icon" @click="cancelBack" />
@@ -116,7 +116,8 @@
             </div>
         </div>
         <div class="card-footer">
-            <button class="card-button" @click="reloadData">重置</button>
+            <button v-if="isDetails" class="card-button-green" @click="seleteRole(1)">快速选择</button>
+            <button v-else class="card-button" @click="reloadData">重置</button>
             <button class="card-button" @click="closeCard">关闭</button>
         </div>
     </div>
@@ -126,7 +127,8 @@
 import "@/assets/css/floating-card.css";
 // import calcTextareaHeight from '@/utils/calcTextareaHeight';
 import defaultAvatar from "@/assets/AIAvatar.jpg"
-import { live2dList } from "@/api/live2DData";
+import  {live2dListData} from "@/api/live2DData";
+import { showAlter } from '@/utils/showAlter';
 
 
 export default {
@@ -176,7 +178,7 @@ export default {
             this.$emit('close');
         },
         reloadData(){
-            this.localLive2dList = live2dList;
+            this.localLive2dList = live2dListData;
             this.saveLocalStorage();
         },
         setDefaultAvatar(event) {
@@ -199,8 +201,11 @@ export default {
             this.currentLive2dData.id = this.live2dList.length + 1;
         },
         saveAdd() {
-            if (this.currentLive2dData.role_name === "") return;
-            if (this.currentLive2dData.role_info === ""){
+            if (this.currentLive2dData.role_name === undefined || this.currentLive2dData.role_name === ""){
+                showAlter("请输入角色名称!",4);
+                return
+            }
+            if (this.currentLive2dData.role_name === undefined || this.currentLive2dData.role_info === ""){
                 this.currentLive2dData.role_info = "";
             }
             this.localLive2dList.push(this.currentLive2dData);
@@ -208,12 +213,23 @@ export default {
             this.saveLocalStorage();
             this.$emit('update:live2dList', this.localLive2dList);
         },
-        seleteRole(){
+        seleteRole(type = 0){
             this.localChooseIndex = this.currentLive2dData.id;
             this.$emit('update:chooseIndex', this.localChooseIndex);
             this.isDetails = false;
+            if(type === 1){
+                this.closeCard();
+            }
         },
         deleteRole(){
+            if(this.currentLive2dData.id === this.localChooseIndex){
+                showAlter("已选择的无法删除!",4);
+                return;
+            }
+            if(this.localLive2dList.length <= 2){
+                showAlter("应该至少保留两个角色哦~",4);
+                return;
+            }
             const index = this.localLive2dList.findIndex(item => item.id === this.currentLive2dData.id);
             if (index !== -1) {
                 this.localLive2dList.splice(index, 1);

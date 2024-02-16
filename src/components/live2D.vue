@@ -55,9 +55,6 @@ export default {
 
 <style>
 .live2DBox {
-    position: absolute;
-    bottom: 0px;
-    left: 20%;
-    z-index: 9999;
+    
 }
 </style>
